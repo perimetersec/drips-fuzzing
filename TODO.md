@@ -1,0 +1,62 @@
+
+## Planning
+- Get insight into coverage
+  - Remove proxy so Echidna can generate coverage reports
+  - Analyze coverage reports
+- Max coverage
+  - 100% coverage on coverage report
+  - Finish all known invariants
+  - Search for new invariants?
+  - Mutation testing?
+- Performance
+  - Optimize fuzzing code
+  - Cloud fuzzing? (fuzzy.fyi)
+- Merge to Drips repo
+  - Fuzzing campaign runnable without changes to the Drips code
+  - Pull request + docs/guide
+  - CI/CD
+- PvE fuzzing
+- Documenting
+- Reporting
+
+
+## Backlog
+- Incorporate fuzzing in Drips repo
+	- Fuzzing campaign runnable without changes to the Drips code
+		- `getAmtDeltaForCycle` needs to be moved to some kind of wrapper/harness
+	- Pull request + docs/guide
+	- CI/CD
+- Helpers
+	- Adding large amounts of StreamReceivers (100s or 1000s)
+	- Improve corpus quality by incentivizing Echidna to make large lists of stream receivers
+- Tests
+	- Continue working on `testExperimentalBalanceAt`
+	- Check if `balanceAt` reverts for timestamps before the last update
+	- Adding/removing streams should not change balance
+	- Test squeezing with fuzzed history lists
+	- Add `testSetStreamsShouldRevert` (duplicates, unsorted, 0 amount per second)
+	- Test internal accounting changes after `give`
+	- Check is `balanceAt` increases in the future if there is an active stream
+	- Test for reentrancy attacks in `Drips.withdraw`
+	- Multiple small `receiveStreams` calls should yield the same result as one big one (with `maxCycles`)
+	- `realBalanceDelta` returned by `setStreams` should never be smaller/larger than supplied `balanceDelta`
+	 - create a stream and warp to the end. Funds in should == to founds out.
+- PvE fuzzing campaign
+	- Adversarial fuzzing instead of specification-oriented
+	- Based on the same helpers
+	- Introduce new user: attacker
+	- New test: attacker should not be able to increase their balance by X percent
+	- Implementation
+		- Special `prank` helper that changes behaviour when attack is starting
+		- `getAccount` should change behaviour when attack is starting
+- Features
+	- Sending tokens directly to Drips
+	- More & dynamic accounts
+	- Different seconds per cycle
+	- Splitting
+- Misc
+	- Code coverage report (needs refactor to remove proxies)
+	- Improve fuzzing speed
+	- Further investigate mutation testing edge cases
+	- Stateless fuzzing of `calcBalance`
+	- Investigate possible DoS attacks on `receiveStreams`,  `split`, etc.
