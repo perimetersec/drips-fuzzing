@@ -1,39 +1,40 @@
+## Todo
+- Performance
+  - Optimize fuzzing code
+  - Make heavy/destructive functions togglable
+- PvE fuzzing PoC
+- Helpers
+  - Improve corpus quality by incentivizing Echidna to make large lists of stream receivers
+- Tests/Invariants
+  - Test squeezing with fuzzed history lists
+  - Splitting
 
-## Planning
+## Done
 - Get insight into coverage
   - Remove proxy so Echidna can generate coverage reports
   - Analyze coverage reports
+- Fuzzing campaign runnable without changes to the Drips code
+
+## Planning (conceptual)
 - Max coverage
   - 100% coverage on coverage report
   - Finish all known invariants
-  - Search for new invariants?
-  - Mutation testing?
-- Performance
-  - Optimize fuzzing code
-  - Cloud fuzzing? (fuzzy.fyi)
-- Merge to Drips repo
-  - Fuzzing campaign runnable without changes to the Drips code
-  - Pull request + docs/guide
-  - CI/CD
+- Set up cloud fuzzing (fuzzy.fyi)
 - PvE fuzzing
 - Documenting
-- Reporting
-
+  - NatSpec
+- Merge to Drips repo
+  - Pull request + docs/guide
 
 ## Backlog
 - Incorporate fuzzing in Drips repo
-	- Fuzzing campaign runnable without changes to the Drips code
-		- `getAmtDeltaForCycle` needs to be moved to some kind of wrapper/harness
 	- Pull request + docs/guide
-	- CI/CD
 - Helpers
 	- Adding large amounts of StreamReceivers (100s or 1000s)
-	- Improve corpus quality by incentivizing Echidna to make large lists of stream receivers
 - Tests
 	- Continue working on `testExperimentalBalanceAt`
 	- Check if `balanceAt` reverts for timestamps before the last update
 	- Adding/removing streams should not change balance
-	- Test squeezing with fuzzed history lists
 	- Add `testSetStreamsShouldRevert` (duplicates, unsorted, 0 amount per second)
 	- Test internal accounting changes after `give`
 	- Check is `balanceAt` increases in the future if there is an active stream
@@ -53,9 +54,7 @@
 	- Sending tokens directly to Drips
 	- More & dynamic accounts
 	- Different seconds per cycle
-	- Splitting
 - Misc
-	- Code coverage report (needs refactor to remove proxies)
 	- Improve fuzzing speed
 	- Further investigate mutation testing edge cases
 	- Stateless fuzzing of `calcBalance`
