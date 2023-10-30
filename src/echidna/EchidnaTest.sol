@@ -15,7 +15,7 @@ contract EchidnaTest is EchidnaDebug {
         address from = getAccount(fromAccId);
         address to = getAccount(toAccId);
 
-        uint256 toDripsAccId = driver.calcAccountId(to);
+        uint256 toDripsAccId = getDripsAccountId(to);
 
         require(amount <= token.balanceOf(from));
 
@@ -30,7 +30,7 @@ contract EchidnaTest is EchidnaDebug {
         address receiver = getAccount(receiverAccId);
         address sender = getAccount(senderAccId);
 
-        uint256 receiverDripsAccId = driver.calcAccountId(receiver);
+        uint256 receiverDripsAccId = getDripsAccountId(receiver);
 
         uint128 squeezableBefore = getSqueezableAmount(sender, receiver);
         uint128 splittableBefore = drips.splittable(receiverDripsAccId, token);
@@ -59,7 +59,7 @@ contract EchidnaTest is EchidnaDebug {
         address receiver = getAccount(receiverAccId);
         address sender = getAccount(senderAccId);
 
-        uint256 receiverDripsAccId = driver.calcAccountId(receiver);
+        uint256 receiverDripsAccId = getDripsAccountId(receiver);
 
         uint128 squeezable = getSqueezableAmount(sender, receiver);
         uint128 squeezed = _squeeze(receiverAccId, senderAccId);
@@ -81,7 +81,7 @@ contract EchidnaTest is EchidnaDebug {
     ///@notice Test internal accounting after receiving streams
     function testReceiveStreams(uint8 targetAccId, uint32 maxCycles) public {
         address target = getAccount(targetAccId);
-        uint256 targetDripsAccId = driver.calcAccountId(target);
+        uint256 targetDripsAccId = getDripsAccountId(target);
 
         uint128 splittableBefore = drips.splittable(targetDripsAccId, token);
         uint128 receivedAmt = receiveStreams(targetAccId, maxCycles);
@@ -103,7 +103,7 @@ contract EchidnaTest is EchidnaDebug {
         uint32 maxCycles
     ) public {
         address target = getAccount(targetAccId);
-        uint256 targetDripsAccId = driver.calcAccountId(target);
+        uint256 targetDripsAccId = getDripsAccountId(target);
 
         require(maxCycles > 0);
 
@@ -128,7 +128,7 @@ contract EchidnaTest is EchidnaDebug {
         public
     {
         address target = getAccount(targetAccId);
-        uint256 targetDripsAccId = driver.calcAccountId(target);
+        uint256 targetDripsAccId = getDripsAccountId(target);
 
         uint128 receivable = drips.receiveStreamsResult(
             targetDripsAccId,
@@ -148,7 +148,7 @@ contract EchidnaTest is EchidnaDebug {
     ///@notice Receiving streams should never revert
     function testReceiveStreamsShouldNotRevert(uint8 targetAccId) public {
         address target = getAccount(targetAccId);
-        uint256 targetDripsAccId = driver.calcAccountId(target);
+        uint256 targetDripsAccId = getDripsAccountId(target);
 
         try
             drips.receiveStreams(targetDripsAccId, token, type(uint32).max)
@@ -160,7 +160,7 @@ contract EchidnaTest is EchidnaDebug {
     ///@notice Test internal accounting after splitting
     function testSplit(uint8 targetAccId) public {
         address target = getAccount(targetAccId);
-        uint256 targetDripsAccId = driver.calcAccountId(target);
+        uint256 targetDripsAccId = getDripsAccountId(target);
 
         uint128 colBalBefore = drips.collectable(targetDripsAccId, token);
         uint128 splitBalBefore = drips.splittable(targetDripsAccId, token);
@@ -187,7 +187,7 @@ contract EchidnaTest is EchidnaDebug {
     ///@notice Splitting should never revert
     function testSplitShouldNotRevert(uint8 targetAccId) public {
         address target = getAccount(targetAccId);
-        uint256 targetDripsAccId = driver.calcAccountId(target);
+        uint256 targetDripsAccId = getDripsAccountId(target);
 
         try
             drips.split(targetDripsAccId, token, new SplitsReceiver[](0))
@@ -201,7 +201,7 @@ contract EchidnaTest is EchidnaDebug {
         address from = getAccount(fromAccId);
         address to = getAccount(toAccId);
 
-        uint256 fromDripsAccId = driver.calcAccountId(from);
+        uint256 fromDripsAccId = getDripsAccountId(from);
 
         uint128 colBalBefore = drips.collectable(fromDripsAccId, token);
         uint256 tokenBalBefore = token.balanceOf(to);
@@ -300,7 +300,7 @@ contract EchidnaTest is EchidnaDebug {
         public
     {
         address target = getAccount(targetAccId);
-        uint256 targetDripsAccId = driver.calcAccountId(target);
+        uint256 targetDripsAccId = getDripsAccountId(target);
 
         uint256 tokenBalanceBefore = token.balanceOf(target);
         uint128 streamBalanceBefore = drips.balanceAt(

@@ -14,7 +14,7 @@ contract EchidnaHelper is EchidnaAccounting {
         address from = getAccount(fromAccId);
         address to = getAccount(toAccId);
 
-        uint256 toDripsAccId = driver.calcAccountId(to);
+        uint256 toDripsAccId = getDripsAccountId(to);
 
         hevm.prank(from);
         driver.give(toDripsAccId, token, amount);
@@ -41,8 +41,8 @@ contract EchidnaHelper is EchidnaAccounting {
     {
         address receiver = getAccount(receiverAccId);
         address sender = getAccount(senderAccId);
-        uint256 receiverDripsAccId = driver.calcAccountId(receiver);
-        uint256 senderDripsAccId = driver.calcAccountId(sender);
+        uint256 receiverDripsAccId = getDripsAccountId(receiver);
+        uint256 senderDripsAccId = getDripsAccountId(sender);
 
         uint128 amount = drips.squeezeStreams(
             receiverDripsAccId,
@@ -78,7 +78,7 @@ contract EchidnaHelper is EchidnaAccounting {
         returns (uint128)
     {
         address target = getAccount(targetAccId);
-        uint256 targetDripsAccId = driver.calcAccountId(target);
+        uint256 targetDripsAccId = getDripsAccountId(target);
 
         uint128 receivedAmt = drips.receiveStreams(
             targetDripsAccId,
@@ -95,7 +95,7 @@ contract EchidnaHelper is EchidnaAccounting {
 
     function split(uint8 targetAccId) public returns (uint128, uint128) {
         address target = getAccount(targetAccId);
-        uint256 targetDripsAccId = driver.calcAccountId(target);
+        uint256 targetDripsAccId = getDripsAccountId(target);
 
         (uint128 collectableAmt, uint128 splitAmt) = drips.split(
             targetDripsAccId,

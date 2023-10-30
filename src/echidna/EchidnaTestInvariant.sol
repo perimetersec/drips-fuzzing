@@ -41,7 +41,7 @@ contract EchidnaTestInvariant is EchidnaTest {
     ///@notice The sum of all `amtDelta`s for an account should be zero
     function invariantSumAmtDeltaIsZero(uint8 targetAccId) public {
         address target = getAccount(targetAccId);
-        uint256 targetDripsAccId = driver.calcAccountId(target);
+        uint256 targetDripsAccId = getDripsAccountId(target);
 
         uint32 maxEnd = getMaxEndForAllUsers();
 

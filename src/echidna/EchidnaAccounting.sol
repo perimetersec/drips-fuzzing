@@ -17,7 +17,7 @@ contract EchidnaAccounting is EchidnaStorage {
         internal
         returns (uint256)
     {
-        uint256 targetDripsAccId = driver.calcAccountId(target);
+        uint256 targetDripsAccId = getDripsAccountId(target);
 
         uint128 balance = getCurrentStreamBalanceForUser(target);
         uint128 squeezable = getTotalSqueezableAmountForUser(target);
@@ -32,7 +32,7 @@ contract EchidnaAccounting is EchidnaStorage {
         internal
         returns (uint128)
     {
-        uint256 targetDripsAccId = driver.calcAccountId(target);
+        uint256 targetDripsAccId = getDripsAccountId(target);
 
         uint128 balance;
         try
@@ -65,7 +65,7 @@ contract EchidnaAccounting is EchidnaStorage {
         returns (uint128)
     {
         uint128 receivable = drips.receiveStreamsResult(
-            driver.calcAccountId(target),
+            getDripsAccountId(target),
             token,
             type(uint32).max
         );
@@ -98,8 +98,8 @@ contract EchidnaAccounting is EchidnaStorage {
         internal
         returns (uint128)
     {
-        uint256 senderDripsAccId = driver.calcAccountId(sender);
-        uint256 receiverDripsAccId = driver.calcAccountId(receiver);
+        uint256 senderDripsAccId = getDripsAccountId(sender);
+        uint256 receiverDripsAccId = getDripsAccountId(receiver);
 
         uint128 amount = drips.squeezeStreamsResult(
             receiverDripsAccId,
@@ -128,7 +128,7 @@ contract EchidnaAccounting is EchidnaStorage {
     }
 
     function getMaxEndForUser(address target) internal returns (uint32) {
-        uint256 targetDripsAccId = driver.calcAccountId(target);
+        uint256 targetDripsAccId = getDripsAccountId(target);
         (, , , , uint32 maxEnd) = drips.streamsState(targetDripsAccId, token);
         return maxEnd;
     }

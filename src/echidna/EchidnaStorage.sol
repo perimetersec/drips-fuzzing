@@ -26,10 +26,12 @@ contract EchidnaStorage is EchidnaSetup {
         userToStreamsHistory[sender].push();
         userToStreamsHistory[sender][nextIndex].streamsHash = bytes32(0);
         for (uint256 i = 0; i < receivers.length; i++) {
-            userToStreamsHistory[sender][nextIndex].receivers.push(receivers[i]);
+            userToStreamsHistory[sender][nextIndex].receivers.push(
+                receivers[i]
+            );
         }
         (, , uint32 updateTime, , uint32 maxEnd) = drips.streamsState(
-            driver.calcAccountId(sender),
+            getDripsAccountId(sender),
             token
         );
         userToStreamsHistory[sender][nextIndex].updateTime = updateTime;
@@ -82,5 +84,14 @@ contract EchidnaStorage is EchidnaSetup {
                 StreamConfig.unwrap(a.config) > StreamConfig.unwrap(b.config);
         }
         revert DuplicateError();
+    }
+
+    function getDripsAccountId(address account) internal returns (uint256) {
+        if (ADDRESS_TO_DRIPS_ACCOUNT_ID[account] == 0) {
+            ADDRESS_TO_DRIPS_ACCOUNT_ID[account] = driver.calcAccountId(
+                account
+            );
+        }
+        return ADDRESS_TO_DRIPS_ACCOUNT_ID[account];
     }
 }

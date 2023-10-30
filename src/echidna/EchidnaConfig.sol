@@ -15,6 +15,7 @@ contract EchidnaConfig {
     address internal constant ADDRESS_USER3 = address(0x40000);
 
     mapping(address => uint8) internal ADDRESS_TO_ACCOUNT_ID;
+    mapping(address => uint256) internal ADDRESS_TO_DRIPS_ACCOUNT_ID;
 
     uint256 internal STARTING_TIMESTAMP;
 

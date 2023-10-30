@@ -48,7 +48,7 @@ contract EchidnaHelperStreams is EchidnaHelper {
 
         StreamReceiver[] memory receivers = new StreamReceiver[](1);
         receivers[0] = StreamReceiver(
-            driver.calcAccountId(to),
+            getDripsAccountId(to),
             StreamConfigImpl.create(
                 0, // streamId is arbitrary and can be ignored
                 amountPerSec,
@@ -126,7 +126,7 @@ contract EchidnaHelperStreams is EchidnaHelper {
         StreamReceiver[] memory oldReceivers = getStreamReceivers(from);
 
         StreamReceiver memory addedReceiver = StreamReceiver(
-            driver.calcAccountId(to),
+            getDripsAccountId(to),
             StreamConfigImpl.create(
                 0, // streamId is arbitrary and can be ignored
                 amountPerSec,
@@ -260,7 +260,7 @@ contract EchidnaHelperStreams is EchidnaHelper {
         returns (int128)
     {
         address target = getAccount(targetAccId);
-        uint256 targetDripsAccId = driver.calcAccountId(target);
+        uint256 targetDripsAccId = getDripsAccountId(target);
 
         int128 realBalanceDelta = _setStreams(
             target,

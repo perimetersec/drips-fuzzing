@@ -100,8 +100,8 @@ contract EchidnaTestExperimental is EchidnaTestInvariant {
 
         address from = getAccount(fromAccId);
         address to = getAccount(toAccId);
-        uint256 fromDripsAccId = driver.calcAccountId(from);
-        uint256 toDripsAccId = driver.calcAccountId(to);
+        uint256 fromDripsAccId = getDripsAccountId(from);
+        uint256 toDripsAccId = getDripsAccountId(to);
 
         amtPerSecAdded = clampAmountPerSec(amtPerSecAdded);
 
