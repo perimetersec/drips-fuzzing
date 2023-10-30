@@ -7,6 +7,8 @@
   - Improve corpus quality by incentivizing Echidna to make large lists of stream receivers
 - Tests/Invariants
   - Test squeezing with fuzzed history lists
+    - Incorrect histories
+    - Histories with hashes
   - Splitting
 
 ## Done
