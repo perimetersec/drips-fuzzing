@@ -101,6 +101,8 @@ abstract contract Splits {
     }
 
     function _addSplittable(uint256 accountId, IERC20 erc20, uint128 amt) internal {
+        // This will not overflow if the requirement of tracking in the contract
+        // no more than `_MAX_SPLITS_BALANCE` of each token is followed.
         _splitsStorage().splitsStates[accountId].balances[erc20].splittable += amt;
     }
 
@@ -116,6 +118,7 @@ abstract contract Splits {
     /// @param accountId The account ID.
     /// @param currReceivers The list of the account's current splits receivers.
     /// It must be exactly the same as the last list set for the account with `_setSplits`.
+    /// If the splits have never been set, pass an empty array.
     /// @param amount The amount being split.
     /// @return collectableAmt The amount made collectable for the account
     /// on top of what was collectable before.
@@ -130,9 +133,9 @@ abstract contract Splits {
             return (0, 0);
         }
         unchecked {
-            uint160 splitsWeight = 0;
-            for (uint256 i = 0; i < currReceivers.length; i++) {
-                splitsWeight += currReceivers[i].weight;
+            uint256 splitsWeight = 0;
+            for (uint256 i = currReceivers.length; i != 0;) {
+                splitsWeight += currReceivers[--i].weight;
             }
             splitAmt = uint128(amount * splitsWeight / _TOTAL_SPLITS_WEIGHT);
             collectableAmt = amount - splitAmt;
@@ -146,6 +149,7 @@ abstract contract Splits {
     /// @param erc20 The used ERC-20 token.
     /// @param currReceivers The list of the account's current splits receivers.
     /// It must be exactly the same as the last list set for the account with `_setSplits`.
+    /// If the splits have never been set, pass an empty array.
     /// @return collectableAmt The amount made collectable for the account
     /// on top of what was collectable before.
     /// @return splitAmt The amount split to the account's splits receivers
@@ -163,17 +167,19 @@ abstract contract Splits {
         balance.splittable = 0;
 
         unchecked {
-            uint160 splitsWeight = 0;
+            uint256 splitsWeight = 0;
             for (uint256 i = 0; i < currReceivers.length; i++) {
                 splitsWeight += currReceivers[i].weight;
-                uint128 currSplitAmt =
-                    uint128(collectableAmt * splitsWeight / _TOTAL_SPLITS_WEIGHT) - splitAmt;
-                splitAmt += currSplitAmt;
+                uint128 currSplitAmt = splitAmt;
+                splitAmt = uint128(collectableAmt * splitsWeight / _TOTAL_SPLITS_WEIGHT);
+                currSplitAmt = splitAmt - currSplitAmt;
                 uint256 receiver = currReceivers[i].accountId;
                 _addSplittable(receiver, erc20, currSplitAmt);
                 emit Split(accountId, receiver, erc20, currSplitAmt);
             }
             collectableAmt -= splitAmt;
+            // This will not overflow if the requirement of tracking in the contract
+            // no more than `_MAX_SPLITS_BALANCE` of each token is followed.
             balance.collectable += collectableAmt;
         }
         emit Collectable(accountId, erc20, collectableAmt);
@@ -215,11 +221,13 @@ abstract contract Splits {
     /// after this function finishes, the new splits configuration will be used.
     /// @param accountId The account ID.
     /// @param receivers The list of the account's splits receivers to be set.
-    /// Must be sorted by the splits receivers' addresses, deduplicated and without 0 weights.
+    /// Must be sorted by the account IDs, without duplicate account IDs and without 0 weights.
     /// Each splits receiver will be getting `weight / _TOTAL_SPLITS_WEIGHT`
     /// share of the funds collected by the account.
     /// If the sum of weights of all receivers is less than `_TOTAL_SPLITS_WEIGHT`,
     /// some funds won't be split, but they will be left for the account to collect.
+    /// Fractions of tokens are always rounder either up or down depending on the amount
+    /// being split, the receiver's position on the list and the other receivers' weights.
     /// It's valid to include the account's own `accountId` in the list of receivers,
     /// but funds split to themselves return to their splittable balance and are not collectable.
     /// This is usually unwanted, because if splitting is repeated,
@@ -228,30 +236,28 @@ abstract contract Splits {
     function _setSplits(uint256 accountId, SplitsReceiver[] memory receivers) internal {
         SplitsState storage state = _splitsStorage().splitsStates[accountId];
         bytes32 newSplitsHash = _hashSplits(receivers);
+        if (newSplitsHash == state.splitsHash) return;
         emit SplitsSet(accountId, newSplitsHash);
-        if (newSplitsHash != state.splitsHash) {
-            _assertSplitsValid(receivers, newSplitsHash);
-            state.splitsHash = newSplitsHash;
-        }
+        _assertSplitsValid(receivers, newSplitsHash);
+        state.splitsHash = newSplitsHash;
     }
 
     /// @notice Validates a list of splits receivers and emits events for them
     /// @param receivers The list of splits receivers
     /// @param receiversHash The hash of the list of splits receivers.
-    /// Must be sorted by the splits receivers' addresses, deduplicated and without 0 weights.
+    /// Must be sorted by the account IDs, without duplicate account IDs and without 0 weights.
     function _assertSplitsValid(SplitsReceiver[] memory receivers, bytes32 receiversHash) private {
         unchecked {
             require(receivers.length <= _MAX_SPLITS_RECEIVERS, "Too many splits receivers");
-            uint64 totalWeight = 0;
-            // slither-disable-next-line uninitialized-local
-            uint256 prevAccountId;
+            uint256 totalWeight = 0;
+            uint256 prevAccountId = 0;
             for (uint256 i = 0; i < receivers.length; i++) {
                 SplitsReceiver memory receiver = receivers[i];
                 uint32 weight = receiver.weight;
                 require(weight != 0, "Splits receiver weight is zero");
                 totalWeight += weight;
                 uint256 accountId = receiver.accountId;
-                if (i > 0) require(prevAccountId < accountId, "Splits receivers not sorted");
+                if (accountId <= prevAccountId) require(i == 0, "Splits receivers not sorted");
                 prevAccountId = accountId;
                 emit SplitsReceiverSeen(receiversHash, accountId, weight);
             }
@@ -262,6 +268,7 @@ abstract contract Splits {
     /// @notice Asserts that the list of splits receivers is the account's currently used one.
     /// @param accountId The account ID.
     /// @param currReceivers The list of the account's current splits receivers.
+    /// If the splits have never been set, pass an empty array.
     function _assertCurrSplits(uint256 accountId, SplitsReceiver[] memory currReceivers)
         internal
         view
@@ -280,7 +287,7 @@ abstract contract Splits {
 
     /// @notice Calculates the hash of the list of splits receivers.
     /// @param receivers The list of the splits receivers.
-    /// Must be sorted by the splits receivers' addresses, deduplicated and without 0 weights.
+    /// If the splits have never been set, pass an empty array.
     /// @return receiversHash The hash of the list of splits receivers.
     function _hashSplits(SplitsReceiver[] memory receivers)
         internal

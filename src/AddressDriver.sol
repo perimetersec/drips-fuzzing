@@ -23,11 +23,6 @@ contract AddressDriver is DriverTransferUtils, Managed {
         driverId = driverId_;
     }
 
-    /// @notice Returns the address of the Drips contract to use for ERC-20 transfers.
-    function _drips() internal view override returns (Drips) {
-        return drips;
-    }
-
     /// @notice Calculates the account ID for an address.
     /// Every account ID is a 256-bit integer constructed by concatenating:
     /// `driverId (32 bits) | zeros (64 bits) | addr (160 bits)`.
@@ -61,7 +56,7 @@ contract AddressDriver is DriverTransferUtils, Managed {
     /// @param transferTo The address to send collected funds to
     /// @return amt The collected amount
     function collect(IERC20 erc20, address transferTo) public whenNotPaused returns (uint128 amt) {
-        return _collectAndTransfer(_callerAccountId(), erc20, transferTo);
+        return _collectAndTransfer(drips, _callerAccountId(), erc20, transferTo);
     }
 
     /// @notice Gives funds from the message sender to the receiver.
@@ -76,7 +71,7 @@ contract AddressDriver is DriverTransferUtils, Managed {
     /// If you use such tokens in the protocol, they can get stuck or lost.
     /// @param amt The given amount
     function give(uint256 receiver, IERC20 erc20, uint128 amt) public whenNotPaused {
-        _giveAndTransfer(_callerAccountId(), receiver, erc20, amt);
+        _giveAndTransfer(drips, _callerAccountId(), receiver, erc20, amt);
     }
 
     /// @notice Sets the message sender's streams configuration.
@@ -92,9 +87,14 @@ contract AddressDriver is DriverTransferUtils, Managed {
     /// It must be exactly the same as the last list set for the sender with `setStreams`.
     /// If this is the first update, pass an empty array.
     /// @param balanceDelta The streams balance change to be applied.
-    /// Positive to add funds to the streams balance, negative to remove them.
+    /// If it's positive, the balance is increased by `balanceDelta`.
+    /// If it's zero, the balance doesn't change.
+    /// If it's negative, the balance is decreased by `balanceDelta`,
+    /// but the change is capped at the current balance amount, so it doesn't go below 0.
+    /// Passing `type(int128).min` always decreases the current balance to 0.
     /// @param newReceivers The list of the streams receivers of the sender to be set.
-    /// Must be sorted by the receivers' addresses, deduplicated and without 0 amtPerSecs.
+    /// Must be sorted by the account IDs and then by the stream configurations,
+    /// without identical elements and without 0 amtPerSecs.
     /// @param maxEndHint1 An optional parameter allowing gas optimization, pass `0` to ignore it.
     /// The first hint for finding the maximum end time when all streams stop due to funds
     /// running out after the balance is updated and the new receivers list is applied.
@@ -120,6 +120,8 @@ contract AddressDriver is DriverTransferUtils, Managed {
     /// The second hint for finding the maximum end time, see `maxEndHint1` docs for more details.
     /// @param transferTo The address to send funds to in case of decreasing balance
     /// @return realBalanceDelta The actually applied streams balance change.
+    /// It's equal to the passed `balanceDelta`, unless it's negative
+    /// and it gets capped at the current balance amount.
     function setStreams(
         IERC20 erc20,
         StreamReceiver[] calldata currReceivers,
@@ -131,6 +133,7 @@ contract AddressDriver is DriverTransferUtils, Managed {
         address transferTo
     ) public whenNotPaused returns (int128 realBalanceDelta) {
         return _setStreamsAndTransfer(
+            drips,
             _callerAccountId(),
             erc20,
             currReceivers,
@@ -149,11 +152,13 @@ contract AddressDriver is DriverTransferUtils, Managed {
     /// Because anybody can call `split` on `Drips`, calling this function may be frontrun
     /// and all the currently splittable funds will be split using the old splits configuration.
     /// @param receivers The list of the account's splits receivers to be set.
-    /// Must be sorted by the splits receivers' addresses, deduplicated and without 0 weights.
+    /// Must be sorted by the account IDs, without duplicate account IDs and without 0 weights.
     /// Each splits receiver will be getting `weight / TOTAL_SPLITS_WEIGHT`
     /// share of the funds collected by the account.
     /// If the sum of weights of all receivers is less than `_TOTAL_SPLITS_WEIGHT`,
     /// some funds won't be split, but they will be left for the account to collect.
+    /// Fractions of tokens are always rounder either up or down depending on the amount
+    /// being split, the receiver's position on the list and the other receivers' weights.
     /// It's valid to include the account's own `accountId` in the list of receivers,
     /// but funds split to themselves return to their splittable balance and are not collectable.
     /// This is usually unwanted, because if splitting is repeated,
@@ -168,6 +173,8 @@ contract AddressDriver is DriverTransferUtils, Managed {
     /// to establish and follow conventions to ensure compatibility with the consumers.
     /// @param accountMetadata The list of account metadata.
     function emitAccountMetadata(AccountMetadata[] calldata accountMetadata) public whenNotPaused {
-        drips.emitAccountMetadata(_callerAccountId(), accountMetadata);
+        if (accountMetadata.length != 0) {
+            drips.emitAccountMetadata(_callerAccountId(), accountMetadata);
+        }
     }
 }
