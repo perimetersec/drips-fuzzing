@@ -616,16 +616,6 @@ abstract contract Streams {
         );
     }
 
-    function _getAmtDeltaForCycle(uint256 accountId, IERC20 erc20, uint32 cycle)
-        internal
-        view
-        returns (int128, int128)
-    {
-          StreamsState storage state = _streamsStorage().states[erc20][accountId];
-          mapping(uint32 cycle => AmtDelta) storage amtDeltas = state.amtDeltas;
-          return (amtDeltas[cycle].thisCycle, amtDeltas[cycle].nextCycle);
-    }
-
     /// @notice The account's streams balance at the given timestamp.
     /// @param accountId The account ID.
     /// @param erc20 The used ERC-20 token.

@@ -590,14 +590,6 @@ contract Drips is Managed, Streams, Splits {
         return Streams._streamsState(accountId, erc20);
     }
 
-    function getAmtDeltaForCycle(uint256 accountId, IERC20 erc20, uint32 cycle)
-        public
-        view
-        returns (int128, int128)
-    {
-        return Streams._getAmtDeltaForCycle(accountId, erc20, cycle);
-    }
-
     /// @notice The account's streams balance at the given timestamp.
     /// @param accountId The account ID.
     /// @param erc20 The used ERC-20 token.
