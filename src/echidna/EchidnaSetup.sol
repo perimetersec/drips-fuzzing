@@ -8,8 +8,8 @@ contract EchidnaSetup is EchidnaConfig {
     IHevm hevm = IHevm(0x7109709ECfa91a80626fF3989D68f67F5b1DD12D);
 
     ERC20PresetFixedSupply token;
-    Drips drips;
-    AddressDriver driver;
+    DripsEchidna drips;
+    AddressDriverEchidna driver;
 
     constructor() EchidnaConfig() {
         // token
@@ -21,19 +21,17 @@ contract EchidnaSetup is EchidnaConfig {
         );
 
         // drips
-        Drips dripsLogic = new Drips(SECONDS_PER_CYCLE);
-        drips = Drips(address(new ManagedProxy(dripsLogic, address(this))));
+        drips = new DripsEchidna(SECONDS_PER_CYCLE);
+        drips.unpause_noModifiers();
 
         // address driver
         uint32 driverId = drips.registerDriver(address(this));
-        AddressDriver driverLogic = new AddressDriver(
+        driver = new AddressDriverEchidna(
             drips,
             address(0),
             driverId
         );
-        driver = AddressDriver(
-            address(new ManagedProxy(driverLogic, address(this)))
-        );
+        driver.unpause_noModifiers();
         drips.updateDriverAddress(driverId, address(driver));
 
         // set up token balances
