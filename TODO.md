@@ -1,6 +1,6 @@
 ## Todo
 - Performance
-  - Optimize fuzzing code
+  - Optimize fuzzing code (Postponed due to possible Echidna issues)
   - Make heavy/destructive functions togglable
 - PvE fuzzing PoC
 - Helpers
