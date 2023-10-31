@@ -8,6 +8,7 @@
 		"corpusDirectory": "medusa-corpus",
 		"coverageEnabled": true,
 		"deploymentOrder": ["Echidna"],
+		"targetContracts": ["Echidna"],
 		"constructorArgs": {},
 		"deployerAddress": "0x30000",
 		"senderAddresses": [
