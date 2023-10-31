@@ -1,21 +1,22 @@
 ## Todo
-- PvE fuzzing PoC
-- Helpers
-  - Improve corpus quality by incentivizing Echidna to make large lists of stream receivers
+- Performance
+  - Make heavy/destructive functions togglable
 - Tests/Invariants
   - Test squeezing with fuzzed history lists
     - Incorrect histories
     - Histories with hashes
   - Splitting
-- Performance (Postponed due to possible Echidna issues)
-  - Optimize fuzzing code
-  - Make heavy/destructive functions togglable
+- Helpers
+  - Improve corpus quality by incentivizing Echidna to make large lists of stream receivers
 
 ## Done
 - Get insight into coverage
   - Remove proxy so Echidna can generate coverage reports
   - Analyze coverage reports
 - Fuzzing campaign runnable without changes to the Drips code
+- Performance
+  - Optimize fuzzing code (Cancelled for now, due to possible Echidna issues)
+- PvE fuzzing PoC
 
 ## Planning (conceptual)
 - Max coverage
