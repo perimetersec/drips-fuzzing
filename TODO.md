@@ -1,7 +1,4 @@
 ## Todo
-- Performance
-  - Optimize fuzzing code (Postponed due to possible Echidna issues)
-  - Make heavy/destructive functions togglable
 - PvE fuzzing PoC
 - Helpers
   - Improve corpus quality by incentivizing Echidna to make large lists of stream receivers
@@ -10,6 +7,9 @@
     - Incorrect histories
     - Histories with hashes
   - Splitting
+- Performance (Postponed due to possible Echidna issues)
+  - Optimize fuzzing code
+  - Make heavy/destructive functions togglable
 
 ## Done
 - Get insight into coverage
