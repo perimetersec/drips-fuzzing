@@ -289,8 +289,13 @@ contract EchidnaHelperStreams is EchidnaHelper {
     function clampStartTime(uint32 startTime) internal returns (uint32) {
         if (startTime == 0) return 0;
 
-        uint32 minStartTime = uint32(block.timestamp) -
-            CYCLE_FUZZING_BUFFER_SECONDS;
+        uint32 minStartTime;
+        if (CYCLE_FUZZING_BUFFER_SECONDS > startTime) {
+            minStartTime = 1;
+        } else {
+            minStartTime = uint32(block.timestamp) -
+                CYCLE_FUZZING_BUFFER_SECONDS;
+        }
         uint32 maxStartTime = uint32(block.timestamp) +
             CYCLE_FUZZING_BUFFER_SECONDS;
         return minStartTime + (startTime % (maxStartTime - minStartTime + 1));
