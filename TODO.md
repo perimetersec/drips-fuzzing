@@ -1,4 +1,5 @@
 ## Todo
+- Medusa compatibility & testing
 - Performance
   - Make heavy/destructive functions togglable
 - Tests/Invariants
