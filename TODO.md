@@ -1,5 +1,4 @@
 ## Todo
-- Medusa compatibility & testing
 - Performance
   - Make heavy/destructive functions togglable
 - Tests/Invariants
@@ -18,6 +17,7 @@
 - Performance
   - Optimize fuzzing code (Cancelled for now, due to possible Echidna issues)
 - PvE fuzzing PoC
+- Medusa compatibility & testing
 
 ## Planning (conceptual)
 - Max coverage
