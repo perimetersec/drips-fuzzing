@@ -9,6 +9,8 @@ contract EchidnaStorage is EchidnaSetup {
     mapping(address => StreamReceiver[]) internal userToStreamReceivers;
     mapping(address => StreamsHistory[]) internal userToStreamsHistory;
 
+    mapping(address => bytes32[]) internal userToStreamsHistoryHashes;
+
     function updateStreamReceivers(
         address sender,
         StreamReceiver[] memory unsortedReceivers
@@ -16,6 +18,8 @@ contract EchidnaStorage is EchidnaSetup {
         StreamReceiver[] memory receivers = bubbleSortStreamReceivers(
             unsortedReceivers
         );
+
+        bytes32 receiversHash = drips.hashStreams(receivers);
 
         delete userToStreamReceivers[sender];
         for (uint256 i = 0; i < receivers.length; i++) {
@@ -36,6 +40,21 @@ contract EchidnaStorage is EchidnaSetup {
         );
         userToStreamsHistory[sender][nextIndex].updateTime = updateTime;
         userToStreamsHistory[sender][nextIndex].maxEnd = maxEnd;
+
+        bytes32 startingHash;
+        if (nextIndex == 0) {
+            startingHash = bytes32(0);
+        } else {
+            startingHash = userToStreamsHistoryHashes[sender][nextIndex - 1];
+        }
+
+        bytes32 historyHash = drips.hashStreamsHistory(
+            startingHash,
+            receiversHash,
+            updateTime,
+            maxEnd
+        );
+        userToStreamsHistoryHashes[sender].push(historyHash);
     }
 
     function getStreamReceivers(address sender)
@@ -50,6 +69,13 @@ contract EchidnaStorage is EchidnaSetup {
         returns (StreamsHistory[] memory)
     {
         return userToStreamsHistory[sender];
+    }
+
+    function getStreamsHistoryHashes(address sender)
+        internal
+        returns (bytes32[] memory)
+    {
+        return userToStreamsHistoryHashes[sender];
     }
 
     function bubbleSortStreamReceivers(StreamReceiver[] memory unsorted)
