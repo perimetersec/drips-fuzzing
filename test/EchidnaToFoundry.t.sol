@@ -10,10 +10,14 @@ contract EchidnaToFoundryTest is Test, Echidna {
         console.log("setUp");
     }
 
-    function testDebugHistoryHashes() public {
+    function testDebugHistoryHashes() public // uint8 receiverAccId,
+    // uint8 senderAccId,
+    // uint256 hashIndex
+    {
         uint8 receiverAccId = 0;
         uint8 senderAccId = 64;
-
+        uint256 hashIndex = 123;
+        
         address receiver = getAccount(receiverAccId);
         address sender = getAccount(senderAccId);
         uint256 receiverDripsAccId = getDripsAccountId(receiver);
@@ -26,18 +30,35 @@ contract EchidnaToFoundryTest is Test, Echidna {
         StreamsHistory[] memory historyStructs = getStreamsHistory(sender);
         bytes32[] memory historyHashes = getStreamsHistoryHashes(sender);
 
-        require(historyStructs.length == 3);
+        require(historyStructs.length >= 2);
 
-        bytes32 historyHash = historyHashes[1];
-        StreamsHistory[] memory history = new StreamsHistory[](1);
-        history[0] = historyStructs[2];
+        hashIndex = hashIndex % (historyHashes.length - 1);
 
-        drips.squeezeStreams(
-            receiverDripsAccId,
-            token,
-            senderDripsAccId,
-            historyHash,
-            history
+        bytes32 historyHash = historyHashes[hashIndex];
+
+        StreamsHistory[] memory history = new StreamsHistory[](
+            historyStructs.length - 1 - hashIndex
         );
+        for (uint256 i = hashIndex + 1; i < historyStructs.length; i++) {
+            history[i - hashIndex - 1] = historyStructs[i];
+        }
+
+        try
+            drips.squeezeStreams(
+                receiverDripsAccId,
+                token,
+                senderDripsAccId,
+                historyHash,
+                history
+            )
+        {
+            Debugger.log("squeeze succeeded");
+            console.log("squeeze succeeded");
+            // assert(false);
+        } catch {
+            Debugger.log("squeeze failed");
+            console.log("squeeze failed");
+            assert(false);
+        }
     }
 }
