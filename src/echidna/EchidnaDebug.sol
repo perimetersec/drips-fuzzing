@@ -17,7 +17,7 @@ contract EchidnaDebug is EchidnaHelperStreams {
         StreamsHistory[] memory historyStructs = getStreamsHistory(sender);
         bytes32[] memory historyHashes = getStreamsHistoryHashes(sender);
 
-        // haing a hashed history requires at least 2 history entries
+        // having a hashed history requires at least 2 history entries
         require(historyStructs.length >= 2);
 
         // hashIndex must be within bounds and cant be the last entry
