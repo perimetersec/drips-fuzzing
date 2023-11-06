@@ -50,4 +50,49 @@ contract EchidnaDebug is EchidnaHelperStreams {
             assert(false);
         }
     }
+
+    function debugSqueezeWithHashedReceivers(
+        uint8 receiverAccId,
+        uint8 senderAccId,
+        bytes32 receiversRandomSeed
+    ) public {
+        address receiver = getAccount(receiverAccId);
+        address sender = getAccount(senderAccId);
+        uint256 receiverDripsAccId = getDripsAccountId(receiver);
+        uint256 senderDripsAccId = getDripsAccountId(sender);
+
+        StreamsHistory[] memory history = getStreamsHistory(sender);
+
+        require(history.length > 0);
+
+        for (uint256 i = 0; i < history.length; i++) {
+            receiversRandomSeed = keccak256(bytes.concat(receiversRandomSeed));
+            bool hashBool = (uint256(receiversRandomSeed) % 2) == 0
+                ? false
+                : true;
+
+            if (hashBool) {
+                history[i].streamsHash = drips.hashStreams(
+                    history[i].receivers
+                );
+                history[i].receivers = new StreamReceiver[](0);
+            }
+        }
+
+        try
+            drips.squeezeStreams(
+                receiverDripsAccId,
+                token,
+                senderDripsAccId,
+                bytes32(0),
+                history
+            )
+        {
+            Debugger.log("squeeze succeeded");
+            // assert(false);
+        } catch {
+            Debugger.log("squeeze failed");
+            assert(false);
+        }
+    }
 }
