@@ -19,11 +19,6 @@ contract EchidnaTestExperimental is EchidnaTestInvariant {
         uint256 currentTimestamp = block.timestamp;
         uint256 futureTimestamp = getCurrentCycleEnd() + 1;
 
-        Debugger.log("currentTimestamp", currentTimestamp);
-        Debugger.log("futureTimestamp", futureTimestamp);
-        Debugger.log("getCurrentCycleStart()", getCurrentCycleStart());
-        Debugger.log("getCurrentCycleEnd()", getCurrentCycleEnd());
-
         hevm.warp(futureTimestamp);
 
         uint128 receivableAfter = getReceivableAmountForUser(target);
@@ -32,11 +27,6 @@ contract EchidnaTestExperimental is EchidnaTestInvariant {
 
         assert(receivableAfter >= receivableBefore);
         uint128 receiveableDelta = receivableAfter - receivableBefore;
-
-        Debugger.log("squeezable", squeezable);
-        Debugger.log("receivableBefore", receivableBefore);
-        Debugger.log("receivableAfter", receivableAfter);
-        Debugger.log("receiveableDelta", receiveableDelta);
 
         assert(squeezable == receiveableDelta);
     }
@@ -109,11 +99,6 @@ contract EchidnaTestExperimental is EchidnaTestInvariant {
         uint256 currentTimestamp = block.timestamp;
         uint256 futureTimestamp = getCurrentCycleEnd() + 1;
 
-        Debugger.log("currentTimestamp", currentTimestamp);
-        Debugger.log("futureTimestamp", futureTimestamp);
-        Debugger.log("getCurrentCycleStart()", getCurrentCycleStart());
-        Debugger.log("getCurrentCycleEnd()", getCurrentCycleEnd());
-
         // retrieve initial balances
         uint128 balanceInitial = getStreamBalanceForUser(
             from,
@@ -144,9 +129,6 @@ contract EchidnaTestExperimental is EchidnaTestInvariant {
             int128(balanceAdded)
         );
 
-        Debugger.log("amtPerSecAdded", amtPerSecAdded);
-        Debugger.log("balanceAdded", balanceAdded);
-
         // retrieve balances after adding stream
         uint128 balanceBefore = getStreamBalanceForUser(
             from,
@@ -164,15 +146,6 @@ contract EchidnaTestExperimental is EchidnaTestInvariant {
         );
         uint128 receivableAfter = getReceivableAmountForAllUsers();
 
-        Debugger.log("balanceInitial", balanceInitial);
-        Debugger.log("receivableInitial", receivableInitial);
-        Debugger.log("balanceBaseline", balanceBaseline);
-        Debugger.log("receivableBaseline", receivableBaseline);
-        Debugger.log("balanceBefore", balanceBefore);
-        Debugger.log("receivableBefore", receivableBefore);
-        Debugger.log("balanceAfter", balanceAfter);
-        Debugger.log("receivableAfter", receivableAfter);
-
         // sanity checks
         assert(balanceInitial >= balanceBaseline);
         assert(balanceBefore >= balanceAfter);
@@ -188,26 +161,6 @@ contract EchidnaTestExperimental is EchidnaTestInvariant {
             baselineBalanceStreamed;
         uint128 expectedReceivedChange = receivableAfter - receivableBaseline;
 
-        Debugger.log("baselineBalanceStreamed", baselineBalanceStreamed);
-        Debugger.log("expectedBalanceChange", expectedBalanceChange);
-        Debugger.log("expectedReceivedChange", expectedReceivedChange);
-
         assert(expectedBalanceChange == expectedReceivedChange);
     }
-
-    // function testExperimentalBalanceAtDoesNotRevert(
-    //     uint8 fromAccId,
-    //     uint8 toAccId,
-    //     uint160 amtPerSecAdded
-    // ) public {
-    //     try
-    //         EchidnaTest(address(this)).testExperimentalBalanceAt(
-    //             fromAccId,
-    //             toAccId,
-    //             amtPerSecAdded
-    //         )
-    //     {} catch {
-    //         assert(false);
-    //     }
-    // }
 }
