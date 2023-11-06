@@ -32,8 +32,18 @@ contract EchidnaConfig {
     uint32 internal constant MAX_STREAM_DURATION = CYCLE_FUZZING_BUFFER_SECONDS;
 
     bool internal constant TOGGLE_EXPERIMENTAL_TESTS_ENABLED = true;
-    bool internal constant TOGGLE_GIVE_ENABLED = true;
+    bool internal constant TOGGLE_HEAVY_TESTS_ENABLED = true;
     bool internal constant TOGGLE_MAXENDHINTS_ENABLED = true;
+
+    modifier experimental() {
+        if (!TOGGLE_EXPERIMENTAL_TESTS_ENABLED) return;
+        _;
+    }
+
+    modifier heavy() {
+        if (!TOGGLE_HEAVY_TESTS_ENABLED) return;
+        _;
+    }
 
     constructor() {
         ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER0] = 0;

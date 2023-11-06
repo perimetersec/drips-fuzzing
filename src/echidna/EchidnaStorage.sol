@@ -1,31 +1,49 @@
 // SPDX-License-Identifier: MIT
-
 import "./EchidnaSetup.sol";
 import "./Debugger.sol";
 
+/**
+ * @title Mixin for storing stream receivers and streams history
+ * @author Rappie
+ */
 contract EchidnaStorage is EchidnaSetup {
     error DuplicateError();
 
+    // Mapping from address to current stream receivers
     mapping(address => StreamReceiver[]) internal userToStreamReceivers;
-    mapping(address => StreamsHistory[]) internal userToStreamsHistory;
 
+    // Mappings from address to full streams history and hashes
+    mapping(address => StreamsHistory[]) internal userToStreamsHistory;
     mapping(address => bytes32[]) internal userToStreamsHistoryHashes;
 
+    /**
+     * @notice Update the stream receivers for a given account.
+     * @param sender Account to update
+     * @param unsortedReceivers New list of stream receivers
+     * @dev This function will sort the stream receivers, generate a new hash
+     * for the stream receivers, and update the stream receivers for the given
+     * account. It will also add a new entry to the streams history and streams
+     * history hashes for the given account. This is all available for later use.
+     */
     function updateStreamReceivers(
         address sender,
         StreamReceiver[] memory unsortedReceivers
     ) internal {
+        // Sort the stream receivers
         StreamReceiver[] memory receivers = bubbleSortStreamReceivers(
             unsortedReceivers
         );
 
+        // Hash the new stream receivers
         bytes32 receiversHash = drips.hashStreams(receivers);
 
+        // Update the stream receivers for 'sender'
         delete userToStreamReceivers[sender];
         for (uint256 i = 0; i < receivers.length; i++) {
             userToStreamReceivers[sender].push(receivers[i]);
         }
 
+        // Add a new entry to the streams history
         uint256 nextIndex = userToStreamsHistory[sender].length;
         userToStreamsHistory[sender].push();
         userToStreamsHistory[sender][nextIndex].streamsHash = bytes32(0);
@@ -41,6 +59,7 @@ contract EchidnaStorage is EchidnaSetup {
         userToStreamsHistory[sender][nextIndex].updateTime = updateTime;
         userToStreamsHistory[sender][nextIndex].maxEnd = maxEnd;
 
+        // Generate starting hash. If there is no previous history, use 0
         bytes32 startingHash;
         if (nextIndex == 0) {
             startingHash = bytes32(0);
@@ -48,6 +67,7 @@ contract EchidnaStorage is EchidnaSetup {
             startingHash = userToStreamsHistoryHashes[sender][nextIndex - 1];
         }
 
+        // Add new entry to the streams history hashes
         bytes32 historyHash = drips.hashStreamsHistory(
             startingHash,
             receiversHash,
@@ -57,6 +77,11 @@ contract EchidnaStorage is EchidnaSetup {
         userToStreamsHistoryHashes[sender].push(historyHash);
     }
 
+    /**
+     * @notice Get the stream receivers for a given account.
+     * @param sender Account to get stream receivers for
+     * @return Stream receivers for the given account
+     */
     function getStreamReceivers(address sender)
         internal
         returns (StreamReceiver[] memory)
@@ -64,6 +89,11 @@ contract EchidnaStorage is EchidnaSetup {
         return userToStreamReceivers[sender];
     }
 
+    /**
+     * @notice Get the streams history for a given account.
+     * @param sender Account to get streams history for
+     * @return Streams history for the given account
+     */
     function getStreamsHistory(address sender)
         internal
         returns (StreamsHistory[] memory)
@@ -71,6 +101,11 @@ contract EchidnaStorage is EchidnaSetup {
         return userToStreamsHistory[sender];
     }
 
+    /**
+     * @notice Get the streams history hashes for a given account.
+     * @param sender Account to get streams history hashes for
+     * @return Streams history hashes for the given account
+     */
     function getStreamsHistoryHashes(address sender)
         internal
         returns (bytes32[] memory)
@@ -78,6 +113,14 @@ contract EchidnaStorage is EchidnaSetup {
         return userToStreamsHistoryHashes[sender];
     }
 
+    /**
+     * @notice Sort the stream receivers.
+     * @param unsorted Unsorted stream receivers
+     * @return Sorted stream receivers
+     * @dev This function will sort the stream receivers by account ID,
+     * then by config, then by stream ID. It will revert if there are
+     * duplicate stream receivers.
+     */
     function bubbleSortStreamReceivers(StreamReceiver[] memory unsorted)
         internal
         returns (StreamReceiver[] memory)
@@ -98,6 +141,14 @@ contract EchidnaStorage is EchidnaSetup {
         return sorted;
     }
 
+    /**
+     * @notice Compare two stream receivers.
+     * @param a First stream receiver
+     * @param b Second stream receiver
+     * @return True if `a` is greater than `b`, false otherwise
+     * @dev This function will compare two stream receivers by account ID,
+     * then by config. It will revert if there are duplicate stream receivers.
+     */
     function bubbleSortStreamReceiverGT(
         StreamReceiver memory a,
         StreamReceiver memory b
@@ -112,6 +163,12 @@ contract EchidnaStorage is EchidnaSetup {
         revert DuplicateError();
     }
 
+    /**
+     * @notice Get the drips account ID for a given address.
+     * @param account Address to get drips account ID for
+     * @return Drips account ID for the given address
+     * @dev Caches the value to increase performance
+     */
     function getDripsAccountId(address account) internal returns (uint256) {
         if (ADDRESS_TO_DRIPS_ACCOUNT_ID[account] == 0) {
             ADDRESS_TO_DRIPS_ACCOUNT_ID[account] = driver.calcAccountId(

@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 
-import "./EchidnaTest.sol";
+import "./EchidnaTestShouldNotRevert.sol";
 import "./Debugger.sol";
 
-contract EchidnaTestInvariant is EchidnaTest {
+contract EchidnaTestInvariant is EchidnaTestShouldNotRevert {
     ///@notice Withdrawing directly from Drips should always fail
     function invariantWithdrawShouldAlwaysFail(uint256 amount) public {
         require(amount > 0);
@@ -39,7 +39,7 @@ contract EchidnaTestInvariant is EchidnaTest {
     }
 
     ///@notice The sum of all `amtDelta`s for an account should be zero
-    function invariantSumAmtDeltaIsZero(uint8 targetAccId) public {
+    function invariantSumAmtDeltaIsZero(uint8 targetAccId) public heavy {
         address target = getAccount(targetAccId);
         uint256 targetDripsAccId = getDripsAccountId(target);
 

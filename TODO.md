@@ -1,10 +1,6 @@
 ## Todo
-- Performance
-  - Make heavy/destructive functions togglable
 - Tests/Invariants
   - Test squeezing with fuzzed history lists
-    - Incorrect histories
-    - Histories with hashes
   - Splitting
 - Helpers
   - Improve corpus quality by incentivizing Echidna to make large lists of stream receivers
@@ -18,6 +14,9 @@
   - Optimize fuzzing code (Cancelled for now, due to possible Echidna issues)
 - PvE fuzzing PoC
 - Medusa compatibility & testing
+- Big round of refactors & cleanup
+- Performance
+  - Make heavy/destructive functions togglable
 
 ## Planning (conceptual)
 - Max coverage
