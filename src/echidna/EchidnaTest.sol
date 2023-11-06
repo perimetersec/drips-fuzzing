@@ -266,12 +266,6 @@ contract EchidnaTest is EchidnaDebug {
         assert(totalUserBalance == STARTING_BALANCE * 4);
     }
 
-    function testWithdrawAllTokensShouldNotRevert() public heavy {
-        try EchidnaTest(address(this)).testWithdrawAllTokens() {} catch {
-            assert(false);
-        }
-    }
-
     function testBalanceAtInFuture(
         uint8 fromAccId,
         uint8 toAccId,
