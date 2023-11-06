@@ -4,10 +4,11 @@ import "./EchidnaHelperStreams.sol";
 import "./Debugger.sol";
 
 contract EchidnaDebug is EchidnaHelperStreams {
-    function debugSqueezeWithHistoryHash(
+    function debugSqueezeWithFuzzedHistory(
         uint8 receiverAccId,
         uint8 senderAccId,
-        uint256 hashIndex
+        uint256 hashIndex,
+        bytes32 receiversRandomSeed
     ) public {
         address receiver = getAccount(receiverAccId);
         address sender = getAccount(senderAccId);
@@ -18,7 +19,7 @@ contract EchidnaDebug is EchidnaHelperStreams {
         bytes32[] memory historyHashes = getStreamsHistoryHashes(sender);
 
         // having a hashed history requires at least 2 history entries
-        require(historyStructs.length >= 2);
+        require(historyStructs.length >= 2, "need at least 2 history entries");
 
         // hashIndex must be within bounds and cant be the last entry
         hashIndex = hashIndex % (historyHashes.length - 1);
@@ -34,37 +35,7 @@ contract EchidnaDebug is EchidnaHelperStreams {
             history[i - hashIndex - 1] = historyStructs[i];
         }
 
-        try
-            drips.squeezeStreams(
-                receiverDripsAccId,
-                token,
-                senderDripsAccId,
-                historyHash,
-                history
-            )
-        {
-            Debugger.log("squeeze succeeded");
-            // assert(false);
-        } catch {
-            Debugger.log("squeeze failed");
-            assert(false);
-        }
-    }
-
-    function debugSqueezeWithHashedReceivers(
-        uint8 receiverAccId,
-        uint8 senderAccId,
-        bytes32 receiversRandomSeed
-    ) public {
-        address receiver = getAccount(receiverAccId);
-        address sender = getAccount(senderAccId);
-        uint256 receiverDripsAccId = getDripsAccountId(receiver);
-        uint256 senderDripsAccId = getDripsAccountId(sender);
-
-        StreamsHistory[] memory history = getStreamsHistory(sender);
-
-        require(history.length > 0);
-
+        // hash receivers based on 'receiversRandomSeed'
         for (uint256 i = 0; i < history.length; i++) {
             receiversRandomSeed = keccak256(bytes.concat(receiversRandomSeed));
             bool hashBool = (uint256(receiversRandomSeed) % 2) == 0
@@ -84,7 +55,7 @@ contract EchidnaDebug is EchidnaHelperStreams {
                 receiverDripsAccId,
                 token,
                 senderDripsAccId,
-                bytes32(0),
+                historyHash,
                 history
             )
         {
