@@ -1,5 +1,6 @@
 ## Todo
 - Tests/Invariants
+  - Test squeezing with fuzzed history lists
   - Splitting
 - Helpers
   - Improve corpus quality by incentivizing Echidna to make large lists of stream receivers
