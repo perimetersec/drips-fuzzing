@@ -33,10 +33,12 @@ contract EchidnaHelper is EchidnaAccounting {
         give(fromAccId, toAccId, clampedAmount);
     }
 
-    function _squeeze(uint8 receiverAccId, uint8 senderAccId)
-        internal
-        returns (uint128)
-    {
+    function _squeeze(
+        uint8 receiverAccId,
+        uint8 senderAccId,
+        bytes32 historyHash,
+        StreamsHistory[] memory history
+    ) internal returns (uint128) {
         address receiver = getAccount(receiverAccId);
         address sender = getAccount(senderAccId);
         uint256 receiverDripsAccId = getDripsAccountId(receiver);
@@ -46,29 +48,54 @@ contract EchidnaHelper is EchidnaAccounting {
             receiverDripsAccId,
             token,
             senderDripsAccId,
-            bytes32(0),
-            getStreamsHistory(sender)
+            historyHash,
+            history
         );
 
         return amount;
     }
 
-    function squeeze(uint8 receiverAccId, uint8 senderAccId)
+    function _squeezeWithDefaultHistory(uint8 receiverAccId, uint8 senderAccId)
+        internal
+        returns (uint128)
+    {
+        return
+            _squeeze(
+                receiverAccId,
+                senderAccId,
+                bytes32(0),
+                getStreamsHistory(getAccount(senderAccId))
+            );
+    }
+
+    function squeezeWithDefaultHistory(uint8 receiverAccId, uint8 senderAccId)
         external
         returns (uint128)
     {
-        return _squeeze(receiverAccId, senderAccId);
+        return _squeezeWithDefaultHistory(receiverAccId, senderAccId);
     }
 
     function squeezeToSelf(uint8 targetAccId) public {
-        _squeeze(targetAccId, targetAccId);
+        _squeezeWithDefaultHistory(targetAccId, targetAccId);
     }
 
     function squeezeAllSenders(uint8 targetAccId) public {
-        _squeeze(targetAccId, ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER0]);
-        _squeeze(targetAccId, ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER1]);
-        _squeeze(targetAccId, ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER2]);
-        _squeeze(targetAccId, ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER3]);
+        _squeezeWithDefaultHistory(
+            targetAccId,
+            ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER0]
+        );
+        _squeezeWithDefaultHistory(
+            targetAccId,
+            ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER1]
+        );
+        _squeezeWithDefaultHistory(
+            targetAccId,
+            ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER2]
+        );
+        _squeezeWithDefaultHistory(
+            targetAccId,
+            ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER3]
+        );
     }
 
     function _squeezeWithFuzzedHistory(
@@ -118,13 +145,7 @@ contract EchidnaHelper is EchidnaAccounting {
         }
 
         // perform the squeeze
-        drips.squeezeStreams(
-            receiverDripsAccId,
-            token,
-            senderDripsAccId,
-            historyHash,
-            history
-        );
+        _squeeze(receiverAccId, senderAccId, historyHash, history);
     }
 
     function squeezeWithFuzzedHistory(

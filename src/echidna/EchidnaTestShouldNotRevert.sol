@@ -24,11 +24,15 @@ contract EchidnaTestShouldNotRevert is EchidnaTestSqueeze {
     }
 
     ///@notice Squeezing should never revert
-    function testSqueezeShouldNotRevert(uint8 receiverAccId, uint8 senderAccId)
-        public
-    {
+    function testSqueezeWithDefaultHistoryShouldNotRevert(
+        uint8 receiverAccId,
+        uint8 senderAccId
+    ) public {
         try
-            EchidnaHelper(address(this)).squeeze(receiverAccId, senderAccId)
+            EchidnaHelper(address(this)).squeezeWithDefaultHistory(
+                receiverAccId,
+                senderAccId
+            )
         {} catch {
             assert(false);
         }

@@ -14,7 +14,10 @@ contract EchidnaTestSqueeze is EchidnaTest {
         uint128 squeezableBefore = getSqueezableAmount(sender, receiver);
         uint128 splittableBefore = drips.splittable(receiverDripsAccId, token);
 
-        uint128 squeezedAmt = _squeeze(receiverAccId, senderAccId);
+        uint128 squeezedAmt = _squeezeWithDefaultHistory(
+            receiverAccId,
+            senderAccId
+        );
 
         uint128 squeezableAfter = getSqueezableAmount(sender, receiver);
         uint128 splittableAfter = drips.splittable(receiverDripsAccId, token);
@@ -39,7 +42,10 @@ contract EchidnaTestSqueeze is EchidnaTest {
         address sender = getAccount(senderAccId);
 
         uint128 squeezable = getSqueezableAmount(sender, receiver);
-        uint128 squeezed = _squeeze(receiverAccId, senderAccId);
+        uint128 squeezed = _squeezeWithDefaultHistory(
+            receiverAccId,
+            senderAccId
+        );
 
         assert(squeezable == squeezed);
     }
