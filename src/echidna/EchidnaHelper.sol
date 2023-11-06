@@ -196,7 +196,7 @@ contract EchidnaHelper is EchidnaAccounting {
         uint8 targetAccId,
         uint256 hashIndex,
         bytes32 receiversRandomSeed
-    ) public returns (bytes32, StreamsHistory[] memory) {
+    ) internal returns (bytes32, StreamsHistory[] memory) {
         address target = getAccount(targetAccId);
 
         // get the history structs and hashes
