@@ -429,9 +429,7 @@ contract EchidnaTest is EchidnaDebug {
     }
 
     function testWithdrawAllTokensShouldNotRevert() public heavy {
-        try
-            EchidnaTest(address(this)).testWithdrawAllTokens()
-        {} catch {
+        try EchidnaTest(address(this)).testWithdrawAllTokens() {} catch {
             assert(false);
         }
     }
