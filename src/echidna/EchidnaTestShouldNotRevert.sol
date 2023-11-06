@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 
-import "./EchidnaTest.sol";
+import "./EchidnaTestSqueeze.sol";
 import "./Debugger.sol";
 
-contract EchidnaTestShouldNotRevert is EchidnaTest {
+contract EchidnaTestShouldNotRevert is EchidnaTestSqueeze {
     ///@notice Giving an amount `<=` token balance should never revert
     function testGiveShouldNotRevert(
         uint8 fromAccId,
