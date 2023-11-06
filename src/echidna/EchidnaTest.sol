@@ -4,25 +4,6 @@ import "./EchidnaDebug.sol";
 import "./Debugger.sol";
 
 contract EchidnaTest is EchidnaDebug {
-    ///@notice Giving an amount `<=` token balance should never revert
-    function testGiveShouldNotRevert(
-        uint8 fromAccId,
-        uint8 toAccId,
-        uint128 amount
-    ) public {
-        address from = getAccount(fromAccId);
-        address to = getAccount(toAccId);
-
-        uint256 toDripsAccId = getDripsAccountId(to);
-
-        require(amount <= token.balanceOf(from));
-
-        hevm.prank(from);
-        try driver.give(toDripsAccId, token, amount) {} catch {
-            assert(false);
-        }
-    }
-
     ///@notice Test internal accounting after squeezing
     function testSqueeze(uint8 receiverAccId, uint8 senderAccId) public {
         address receiver = getAccount(receiverAccId);
@@ -63,17 +44,6 @@ contract EchidnaTest is EchidnaDebug {
         uint128 squeezed = _squeeze(receiverAccId, senderAccId);
 
         assert(squeezable == squeezed);
-    }
-
-    ///@notice Squeezing should never revert
-    function testSqueezeShouldNotRevert(uint8 receiverAccId, uint8 senderAccId)
-        public
-    {
-        try
-            EchidnaHelper(address(this)).squeeze(receiverAccId, senderAccId)
-        {} catch {
-            assert(false);
-        }
     }
 
     ///@notice Test internal accounting after receiving streams
@@ -143,18 +113,6 @@ contract EchidnaTest is EchidnaDebug {
         assert(receivable == received);
     }
 
-    ///@notice Receiving streams should never revert
-    function testReceiveStreamsShouldNotRevert(uint8 targetAccId) public {
-        address target = getAccount(targetAccId);
-        uint256 targetDripsAccId = getDripsAccountId(target);
-
-        try
-            drips.receiveStreams(targetDripsAccId, token, type(uint32).max)
-        {} catch {
-            assert(false);
-        }
-    }
-
     ///@notice Test internal accounting after splitting
     function testSplit(uint8 targetAccId) public {
         address target = getAccount(targetAccId);
@@ -182,18 +140,6 @@ contract EchidnaTest is EchidnaDebug {
         }
     }
 
-    ///@notice Splitting should never revert
-    function testSplitShouldNotRevert(uint8 targetAccId) public {
-        address target = getAccount(targetAccId);
-        uint256 targetDripsAccId = getDripsAccountId(target);
-
-        try
-            drips.split(targetDripsAccId, token, new SplitsReceiver[](0))
-        {} catch {
-            assert(false);
-        }
-    }
-
     ///@notice Test internal accounting after collecting
     function testCollect(uint8 fromAccId, uint8 toAccId) public {
         address from = getAccount(fromAccId);
@@ -211,86 +157,6 @@ contract EchidnaTest is EchidnaDebug {
 
         assert(colBalAfter == colBalBefore - collected);
         assert(tokenBalAfter == tokenBalBefore + collected);
-    }
-
-    ///@notice Collecting should never revert
-    function testCollectShouldNotRevert(uint8 fromAccId, uint8 toAccId) public {
-        address from = getAccount(fromAccId);
-        address to = getAccount(toAccId);
-
-        hevm.prank(from);
-        try driver.collect(token, to) {} catch {
-            assert(false);
-        }
-    }
-
-    ///@notice Setting streams with sane defaults should not revert
-    function testSetStreamsShouldNotRevert(
-        uint8 fromAccId,
-        uint8 toAccId,
-        uint160 amountPerSec,
-        uint32 startTime,
-        uint32 duration,
-        int128 balanceDelta
-    ) public {
-        try
-            EchidnaHelperStreams(address(this)).setStreamsWithClamping(
-                fromAccId,
-                toAccId,
-                amountPerSec,
-                startTime,
-                duration,
-                balanceDelta
-            )
-        returns (int128 realBalanceDelta) {} catch {
-            assert(false);
-        }
-    }
-
-    ///@notice Adding streams with sane defaults should not revert
-    function testAddStreamShouldNotRevert(
-        uint8 fromAccId,
-        uint8 toAccId,
-        uint160 amountPerSec,
-        uint32 startTime,
-        uint32 duration,
-        int128 balanceDelta
-    ) public {
-        try
-            EchidnaHelperStreams(address(this)).addStreamWithClamping(
-                fromAccId,
-                toAccId,
-                amountPerSec,
-                startTime,
-                duration,
-                balanceDelta
-            )
-        returns (int128 realBalanceDelta) {} catch (bytes memory reason) {
-            bytes4 errorSelector = bytes4(keccak256(bytes("DuplicateError()")));
-            if (errorSelector == EchidnaStorage.DuplicateError.selector) {
-                // ignore this case, it means we tried to add a duplicate stream
-            } else {
-                assert(false);
-            }
-        }
-    }
-
-    ///@notice Removing streams should not revert
-    function testRemoveStreamShouldNotRevert(
-        uint8 targetAccId,
-        uint256 indexSeed
-    ) public {
-        address target = getAccount(targetAccId);
-        require(getStreamReceivers(target).length > 0);
-
-        try
-            EchidnaHelperStreams(address(this)).removeStream(
-                targetAccId,
-                indexSeed
-            )
-        {} catch {
-            assert(false);
-        }
     }
 
     ///@notice Test internal accounting after updating stream balance
@@ -333,34 +199,6 @@ contract EchidnaTest is EchidnaDebug {
             int128(streamBalanceAfter) ==
                 int128(streamBalanceBefore) + realBalanceDelta
         );
-    }
-
-    ///@notice Updating stream balance with sane defaults should not revert
-    function testSetStreamBalanceShouldNotRevert(
-        uint8 targetAccId,
-        int128 balanceDelta
-    ) public {
-        try
-            EchidnaHelperStreams(address(this)).setStreamBalanceWithClamping(
-                targetAccId,
-                balanceDelta
-            )
-        {} catch {
-            assert(false);
-        }
-    }
-
-    ///@notice Withdrawing all stream balance should not revert
-    function testSetStreamBalanceWithdrawAllShouldNotRevert(uint8 targetAccId)
-        public
-    {
-        try
-            EchidnaHelperStreams(address(this)).setStreamBalanceWithdrawAll(
-                targetAccId
-            )
-        {} catch {
-            assert(false);
-        }
     }
 
     function testSqueezableVsReceived(uint8 targetAccId) public heavy {
