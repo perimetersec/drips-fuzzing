@@ -10,8 +10,6 @@ contract EchidnaTest is EchidnaDebug {
         uint8 toAccId,
         uint128 amount
     ) public {
-        require(TOGGLE_GIVE_ENABLED);
-
         address from = getAccount(fromAccId);
         address to = getAccount(toAccId);
 

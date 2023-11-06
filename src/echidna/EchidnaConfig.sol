@@ -32,7 +32,6 @@ contract EchidnaConfig {
     uint32 internal constant MAX_STREAM_DURATION = CYCLE_FUZZING_BUFFER_SECONDS;
 
     bool internal constant TOGGLE_EXPERIMENTAL_TESTS_ENABLED = true;
-    bool internal constant TOGGLE_GIVE_ENABLED = true;
     bool internal constant TOGGLE_MAXENDHINTS_ENABLED = true;
 
     constructor() {
