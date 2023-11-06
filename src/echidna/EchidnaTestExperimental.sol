@@ -4,8 +4,7 @@ import "./EchidnaTestInvariant.sol";
 import "./Debugger.sol";
 
 contract EchidnaTestExperimental is EchidnaTestInvariant {
-    function testSqueezableVsReceived(uint8 targetAccId) public {
-        require(TOGGLE_EXPERIMENTAL_TESTS_ENABLED);
+    function testSqueezableVsReceived(uint8 targetAccId) public heavy {
         address target = getAccount(targetAccId);
 
         uint128 squeezable = getTotalSqueezableAmountForUser(target);
@@ -31,9 +30,7 @@ contract EchidnaTestExperimental is EchidnaTestInvariant {
         assert(squeezable == receiveableDelta);
     }
 
-    function testWithdrawAllTokens() external {
-        require(TOGGLE_EXPERIMENTAL_TESTS_ENABLED);
-
+    function testWithdrawAllTokens() external heavy {
         squeezeAllSenders(ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER0]);
         squeezeAllSenders(ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER1]);
         squeezeAllSenders(ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER2]);
@@ -72,8 +69,7 @@ contract EchidnaTestExperimental is EchidnaTestInvariant {
         assert(totalUserBalance == STARTING_BALANCE * 4);
     }
 
-    function testWithdrawAllTokensShouldNotRevert() public {
-        require(TOGGLE_EXPERIMENTAL_TESTS_ENABLED);
+    function testWithdrawAllTokensShouldNotRevert() public heavy {
         try
             EchidnaTestExperimental(address(this)).testWithdrawAllTokens()
         {} catch {
@@ -84,10 +80,8 @@ contract EchidnaTestExperimental is EchidnaTestInvariant {
     function testExperimentalBalanceAt(
         uint8 fromAccId,
         uint8 toAccId,
-        uint160 amtPerSecAdded // ) public {
-    ) external {
-        require(TOGGLE_EXPERIMENTAL_TESTS_ENABLED);
-
+        uint160 amtPerSecAdded
+    ) public heavy {
         address from = getAccount(fromAccId);
         address to = getAccount(toAccId);
         uint256 fromDripsAccId = getDripsAccountId(from);
