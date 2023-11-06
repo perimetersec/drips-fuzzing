@@ -71,12 +71,12 @@ contract EchidnaHelper is EchidnaAccounting {
         _squeeze(targetAccId, ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER3]);
     }
 
-    function squeezeWithFuzzedHistory(
+    function _squeezeWithFuzzedHistory(
         uint8 receiverAccId,
         uint8 senderAccId,
         uint256 hashIndex,
         bytes32 receiversRandomSeed
-    ) public {
+    ) internal {
         address receiver = getAccount(receiverAccId);
         address sender = getAccount(senderAccId);
         uint256 receiverDripsAccId = getDripsAccountId(receiver);
@@ -124,6 +124,20 @@ contract EchidnaHelper is EchidnaAccounting {
             senderDripsAccId,
             historyHash,
             history
+        );
+    }
+
+    function squeezeWithFuzzedHistory(
+        uint8 receiverAccId,
+        uint8 senderAccId,
+        uint256 hashIndex,
+        bytes32 receiversRandomSeed
+    ) external {
+        _squeezeWithFuzzedHistory(
+            receiverAccId,
+            senderAccId,
+            hashIndex,
+            receiversRandomSeed
         );
     }
 

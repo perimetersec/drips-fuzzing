@@ -34,6 +34,30 @@ contract EchidnaTestShouldNotRevert is EchidnaTestSqueeze {
         }
     }
 
+    function testSqueezeWithFuzzedHistoryShouldNotRevert(
+        uint8 receiverAccId,
+        uint8 senderAccId,
+        uint256 hashIndex,
+        bytes32 receiversRandomSeed
+    ) public {
+        address sender = getAccount(senderAccId);
+        require(
+            getStreamsHistory(sender).length >= 2,
+            "need at least 2 history entries"
+        );
+
+        try
+            EchidnaHelper(address(this)).squeezeWithFuzzedHistory(
+                receiverAccId,
+                senderAccId,
+                hashIndex,
+                receiversRandomSeed
+            )
+        {} catch {
+            assert(false);
+        }
+    }
+
     ///@notice Receiving streams should never revert
     function testReceiveStreamsShouldNotRevert(uint8 targetAccId) public {
         address target = getAccount(targetAccId);
