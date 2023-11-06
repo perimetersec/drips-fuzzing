@@ -38,8 +38,6 @@ contract EchidnaTestSqueeze is EchidnaTest {
         address receiver = getAccount(receiverAccId);
         address sender = getAccount(senderAccId);
 
-        uint256 receiverDripsAccId = getDripsAccountId(receiver);
-
         uint128 squeezable = getSqueezableAmount(sender, receiver);
         uint128 squeezed = _squeeze(receiverAccId, senderAccId);
 
