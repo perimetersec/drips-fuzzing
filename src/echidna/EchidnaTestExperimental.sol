@@ -77,7 +77,7 @@ contract EchidnaTestExperimental is EchidnaTestInvariant {
         }
     }
 
-    function testExperimentalBalanceAt(
+    function testBalanceAtInFuture(
         uint8 fromAccId,
         uint8 toAccId,
         uint160 amtPerSecAdded
