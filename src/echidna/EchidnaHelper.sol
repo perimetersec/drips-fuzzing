@@ -192,6 +192,13 @@ contract EchidnaHelper is EchidnaAccounting {
         splitAndCollectToSelf(targetAccId);
     }
 
+    function squeezeAllAndReceiveAndSplitAndCollectToSelf(uint8 targetAccId)
+        public
+    {
+        squeezeAllSenders(targetAccId);
+        receiveStreamsSplitAndCollectToSelf(targetAccId);
+    }
+
     function getFuzzedStreamsHistory(
         uint8 targetAccId,
         uint256 hashIndex,
