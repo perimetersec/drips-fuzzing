@@ -1,4 +1,5 @@
 # multi-abi: true
+# allContracts: true
 
 workers: 1
 # workers: 2
