@@ -17,8 +17,12 @@ contract EchidnaHelperStreams is EchidnaHelper {
         address from,
         StreamReceiver[] memory currReceivers,
         int128 balanceDelta,
-        StreamReceiver[] memory newReceivers
+        StreamReceiver[] memory unsortedNewReceivers
     ) internal returns (int128) {
+        StreamReceiver[] memory newReceivers = bubbleSortStreamReceivers(
+            unsortedNewReceivers
+        );
+
         hevm.prank(from);
         int128 realBalanceDelta = driver.setStreams(
             token,
