@@ -129,4 +129,47 @@ contract EchidnaTestSqueeze is EchidnaTest {
 
         assert(amount1 == 0);
     }
+
+    function testSqueezableAmountCantBeUndone(
+        uint8 receiverAccId,
+        uint8 senderAccId,
+        uint160 amountPerSec,
+        uint32 startTime,
+        uint32 duration,
+        int128 balanceDelta
+    ) external {
+        address receiver = getAccount(receiverAccId);
+        address sender = getAccount(senderAccId);
+
+        uint128 squeezableBefore = getSqueezableAmount(sender, receiver);
+
+        setStreams(
+            receiverAccId,
+            senderAccId,
+            amountPerSec,
+            startTime,
+            duration,
+            balanceDelta
+        );
+
+        uint128 squeezableAfter = getSqueezableAmount(sender, receiver);
+
+        assert(squeezableAfter == squeezableBefore);
+    }
+
+    function testSqueezableAmountCantBeWithdrawn(
+        uint8 receiverAccId,
+        uint8 senderAccId
+    ) external {
+        address receiver = getAccount(receiverAccId);
+        address sender = getAccount(senderAccId);
+
+        uint128 squeezableBefore = getSqueezableAmount(sender, receiver);
+
+        _setStreamBalanceWithdrawAll(senderAccId);
+
+        uint128 squeezableAfter = getSqueezableAmount(sender, receiver);
+
+        assert(squeezableAfter == squeezableBefore);
+    }
 }
