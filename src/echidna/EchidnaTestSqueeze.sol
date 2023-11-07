@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 
 import "./EchidnaTest.sol";
-import "./Debugger.sol";
 
 contract EchidnaTestSqueeze is EchidnaTest {
     ///@notice Test internal accounting after squeezing

@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 
 import "./EchidnaTestShouldNotRevert.sol";
-import "./Debugger.sol";
 
 contract EchidnaTestInvariant is EchidnaTestShouldNotRevert {
     ///@notice Withdrawing directly from Drips should always fail

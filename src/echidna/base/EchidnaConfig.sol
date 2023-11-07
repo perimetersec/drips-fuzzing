@@ -5,8 +5,10 @@ import {ManagedProxy} from "src/Managed.sol";
 import {Drips, SplitsReceiver, StreamReceiver, StreamConfig, StreamConfigImpl, StreamsHistory} from "src/Drips.sol";
 import {AddressDriver} from "src/AddressDriver.sol";
 
-import {DripsEchidna} from "./DripsEchidna.sol";
-import {AddressDriverEchidna} from "./AddressDriverEchidna.sol";
+import {DripsEchidna} from "../tools/DripsEchidna.sol";
+import {AddressDriverEchidna} from "../tools/AddressDriverEchidna.sol";
+
+import "../tools/Debugger.sol";
 
 contract EchidnaConfig {
     address internal constant ADDRESS_USER0 = address(0x10000);

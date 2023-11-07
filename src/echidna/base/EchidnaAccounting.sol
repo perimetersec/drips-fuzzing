@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 
 import "./EchidnaStorage.sol";
-import "./Debugger.sol";
 
 /**
  * @title Mixin for handling accounting related functions

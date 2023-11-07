@@ -1,9 +1,8 @@
 // SPDX-License-Identifier: MIT
 
-import "./EchidnaDebug.sol";
-import "./Debugger.sol";
+import "./EchidnaHelperStreams.sol";
 
-contract EchidnaTest is EchidnaDebug {
+contract EchidnaTest is EchidnaHelperStreams {
     ///@notice Test internal accounting after receiving streams
     function testReceiveStreams(uint8 targetAccId, uint32 maxCycles) public {
         address target = getAccount(targetAccId);

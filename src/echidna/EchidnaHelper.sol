@@ -1,9 +1,8 @@
 // SPDX-License-Identifier: MIT
 
-import "./EchidnaAccounting.sol";
-import "./Debugger.sol";
+import "./base/EchidnaBase.sol";
 
-contract EchidnaHelper is EchidnaAccounting {
+contract EchidnaHelper is EchidnaBase {
     function give(
         uint8 fromAccId,
         uint8 toAccId,

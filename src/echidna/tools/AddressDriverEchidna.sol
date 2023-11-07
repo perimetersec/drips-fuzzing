@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-import {AddressDriver} from "../AddressDriver.sol";
+import {AddressDriver} from "src/AddressDriver.sol";
 
 import {DripsEchidna} from "./DripsEchidna.sol";
 import {ManagedEchidna} from "./ManagedEchidna.sol";

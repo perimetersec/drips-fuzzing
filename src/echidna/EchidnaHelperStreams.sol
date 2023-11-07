@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 
 import "./EchidnaHelper.sol";
-import "./Debugger.sol";
 
 contract EchidnaHelperStreams is EchidnaHelper {
     uint32 internal maxEndHint1;
