@@ -1,7 +1,7 @@
 
-# workers: 1
+workers: 1
 # workers: 2
-workers: 4
+
 symExec: true
 
 testMode: assertion
@@ -9,10 +9,8 @@ testMode: assertion
 prefix: echidna_
 corpusDir: echidna-corpus
 
-# testLimit: 100000000000 # infinite
+testLimit: 100000000000
 # testLimit: 10000 # 10K
-# testLimit: 100000 # 100K
-testLimit: 1000000 # 1M
 # testLimit: 10000000 # 10M
 # testLimit: 100000000 # 100M
 
