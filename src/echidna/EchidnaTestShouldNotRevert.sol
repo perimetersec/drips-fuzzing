@@ -115,7 +115,7 @@ contract EchidnaTestShouldNotRevert is EchidnaTestSqueeze {
                 duration,
                 balanceDelta
             )
-        returns (int128 realBalanceDelta) {} catch {
+        {} catch {
             assert(false);
         }
     }
