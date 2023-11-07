@@ -1,12 +1,10 @@
-# multi-abi: true
-# allContracts: true
 
 workers: 1
 # workers: 2
+
 symExec: true
 
 testMode: assertion
-# testMode: optimization
 
 prefix: echidna_
 corpusDir: echidna-corpus
@@ -24,10 +22,10 @@ testLimit: 100000000000
 
 maxTimeDelay: 100
 
-# sender: [
-#     "0x10000", # vault
-#     "0x20000", # outsider
-#     "0x30000", # user0
-#     "0x40000", # user1
+# allContracts: true
+# sender: ["0x10000", "0x20000", "0x30000", "0x40000"]
+# filterFunctions: [
+#     "ERC20PresetFixedSupply.transferFrom(address,address,uint256)",
+#     "ERC20PresetFixedSupply.approve(address,uint256)",
+#     "ERC20PresetFixedSupply.decreaseAllowance(address,uint256)",
 #   ]
-
