@@ -10,6 +10,107 @@ contract EchidnaToFoundryTest is Test, Echidna {
         console.log("setUp");
     }
 
+    function testDebugSomething() public {
+        // debugClampAmountPerSec();
+        debugSorting();
+    }
+
+
+    function debugSorting() public {
+        testAddStreamShouldNotRevert(0,0,900553926,0,0,0);
+        testHelperSqueezeDoesNotRevert(0,0,0);
+    }
+
+    function debugClampAmountPerSec() public {
+        uint160 amount = 0;
+        uint160 clamped= clampAmountPerSec(amount);
+
+        console.log("amount", amount);
+        console.log("clamped", clamped);
+
+        uint160 amountPerSec = clamped;
+        uint8 receiverAccId = 0;
+        uint8 senderAccId = 64;
+
+        // amountPerSec = clampAmountPerSec(amountPerSec);
+        int128 balanceDelta = 
+            int128(uint128(amountPerSec * uint128(SECONDS_PER_CYCLE)));
+
+        require(balanceDelta > 0, "balanceDelta must be > 0");
+
+        console.log("amountPerSec", amountPerSec);
+        console.log("balanceDelta", uint128(balanceDelta));
+
+        addStream(
+            senderAccId,
+            receiverAccId,
+            amountPerSec,
+            0,
+            0,
+            balanceDelta
+        );
+
+        hevm.warp(block.timestamp + 1);
+    }
+
+    function testDebugTriggerSqueeze() public // uint8 receiverAccId,
+    // uint8 senderAccId
+    {
+        uint8 receiverAccId = 0;
+        uint8 senderAccId = 64;
+
+        address receiver = getAccount(receiverAccId);
+        address sender = getAccount(senderAccId);
+
+        addStream(senderAccId, receiverAccId, 1e18, 0, 0, 10e18);
+        vm.warp(block.timestamp + 1);
+
+        uint128 squeezableBefore = getSqueezableAmount(sender, receiver);
+
+        StreamsHistory[] memory history = getStreamsHistory(sender);
+
+        // for (uint256 i = 0; i < history.length; i++) {
+        //     history[i].streamsHash = drips.hashStreams(history[i].receivers);
+        //     history[i].receivers = new StreamReceiver[](0);
+        // }
+
+        // require(history.length > 0);
+        // require(getTotalSqueezableAmountForUser(receiver) > 0);
+        // require(squeezableBefore > 0);
+        // assert(getTotalSqueezableAmountForUser(receiver) == 0);
+
+        // uint128 squeezedAmt = _squeeze(
+        //     receiverAccId,
+        //     senderAccId,
+        //     bytes32(0),
+        //     history
+        // );
+        uint128 squeezedAmt;
+        // try
+        EchidnaHelper(address(this)).squeeze(
+            receiverAccId,
+            senderAccId,
+            bytes32(0),
+            history
+        );
+        // returns (uint128 amt) {
+        //     squeezedAmt = amt;
+        // } catch {
+        //     Debugger.log("squeeze failed");
+        //     assert(false);
+        // }
+
+        uint128 squeezableAfter = getSqueezableAmount(sender, receiver);
+
+        console.log("squeezedAmt", squeezedAmt);
+        console.log("squeezableBefore", squeezableBefore);
+        console.log("squeezableAfter", squeezableAfter);
+
+        // assert(false);
+        assert(squeezedAmt == 0);
+        assert(squeezableAfter == squeezableBefore);
+    }
+
     function testDebugFullyFuzzedHistory() public {
         uint8 receiverAccId = 0;
         uint8 senderAccId = 64;
