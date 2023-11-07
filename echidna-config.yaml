@@ -25,7 +25,9 @@ maxTimeDelay: 100
 # allContracts: true
 # sender: ["0x10000", "0x20000", "0x30000", "0x40000"]
 # filterFunctions: [
-#     "ERC20PresetFixedSupply.transferFrom(address,address,uint256)",
+#     "ERC20PresetFixedSupply.transfer(address,uint256)",
 #     "ERC20PresetFixedSupply.approve(address,uint256)",
 #     "ERC20PresetFixedSupply.decreaseAllowance(address,uint256)",
+#     "ERC20PresetFixedSupply.burn(uint256)",
+#     "AddressDriver.give(uint256,address,uint128)",
 #   ]
