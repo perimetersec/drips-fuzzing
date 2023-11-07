@@ -202,6 +202,35 @@ contract EchidnaHelperStreams is EchidnaHelper {
             );
     }
 
+    function addStreamImmediatelySqueezable(
+        uint8 receiverAccId,
+        uint8 senderAccId,
+        uint160 amountPerSec
+    ) public {
+        address receiver = getAccount(receiverAccId);
+        address sender = getAccount(senderAccId);
+
+        // calculate amount per second so there will be something to squeeze
+        // this cycle
+        uint160 minAmtPerSec = drips.minAmtPerSec() * SECONDS_PER_CYCLE;
+        amountPerSec =
+            minAmtPerSec +
+            (amountPerSec % (MAX_AMOUNT_PER_SEC - minAmtPerSec + 1));
+
+        // deposit 100 times the amount of 'amountPerSec' so chances are high
+        // that there is enough balance to stream this cycle
+        int128 balanceDelta = int128(uint128(amountPerSec)) * 100 / 1e9;
+        if (uint128(balanceDelta) > token.balanceOf(sender)) {
+            balanceDelta = int128(uint128(token.balanceOf(sender)));
+        }
+
+        // add the stream
+        addStream(senderAccId, receiverAccId, amountPerSec, 0, 0, balanceDelta);
+
+        // warp 1 second forward so there is something to squeeze
+        hevm.warp(block.timestamp + 1);
+    }
+
     function _removeStream(uint8 targetAccId, uint256 indexSeed) internal {
         address target = getAccount(targetAccId);
 
