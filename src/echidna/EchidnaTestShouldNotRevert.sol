@@ -139,7 +139,7 @@ contract EchidnaTestShouldNotRevert is EchidnaTestSqueeze {
                 balanceDelta
             )
         {} catch (bytes memory reason) {
-            bytes4 errorSelector = bytes4(keccak256(bytes("DuplicateError()")));
+            bytes4 errorSelector = bytes4(reason);
             if (errorSelector == EchidnaStorage.DuplicateError.selector) {
                 // ignore this case, it means we tried to add a duplicate stream
             } else {
