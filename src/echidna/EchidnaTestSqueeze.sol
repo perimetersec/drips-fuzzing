@@ -75,4 +75,32 @@ contract EchidnaTestSqueeze is EchidnaTest {
 
         assert(squeezable == receiveableDelta);
     }
+
+    function testSqueezeWithFullyHashedHistory(
+        uint8 receiverAccId,
+        uint8 senderAccId
+    ) public {
+        address receiver = getAccount(receiverAccId);
+        address sender = getAccount(senderAccId);
+
+        uint128 squeezableBefore = getSqueezableAmount(sender, receiver);
+
+        StreamsHistory[] memory history = getStreamsHistory(sender);
+        for (uint256 i = 0; i < history.length; i++) {
+            history[i].streamsHash = drips.hashStreams(history[i].receivers);
+            history[i].receivers = new StreamReceiver[](0);
+        }
+
+        uint128 squeezedAmt = _squeeze(
+            receiverAccId,
+            senderAccId,
+            bytes32(0),
+            history
+        );
+
+        uint128 squeezableAfter = getSqueezableAmount(sender, receiver);
+
+        assert(squeezedAmt == 0);
+        assert(squeezableAfter == squeezableBefore);
+    }
 }
