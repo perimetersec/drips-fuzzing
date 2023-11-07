@@ -323,7 +323,7 @@ contract EchidnaHelperStreams is EchidnaHelper {
         if (startTime == 0) return 0;
 
         uint32 minStartTime;
-        if (CYCLE_FUZZING_BUFFER_SECONDS > startTime) {
+        if (CYCLE_FUZZING_BUFFER_SECONDS >= block.timestamp) {
             minStartTime = 1;
         } else {
             minStartTime = uint32(block.timestamp) -
