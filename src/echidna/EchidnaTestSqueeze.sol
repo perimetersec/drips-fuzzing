@@ -103,4 +103,30 @@ contract EchidnaTestSqueeze is EchidnaTest {
         assert(squeezedAmt == 0);
         assert(squeezableAfter == squeezableBefore);
     }
+
+    function testSqueezeTwice(
+        uint8 receiverAccId,
+        uint8 senderAccId,
+        uint256 hashIndex,
+        bytes32 receiversRandomSeed
+    ) external {
+        address receiver = getAccount(receiverAccId);
+        address sender = getAccount(senderAccId);
+
+        uint128 amount0 = _squeezeWithFuzzedHistory(
+            receiverAccId,
+            senderAccId,
+            hashIndex,
+            receiversRandomSeed
+        );
+
+        uint128 amount1 = _squeezeWithFuzzedHistory(
+            receiverAccId,
+            senderAccId,
+            hashIndex,
+            receiversRandomSeed
+        );
+
+        assert(amount1 == 0);
+    }
 }
