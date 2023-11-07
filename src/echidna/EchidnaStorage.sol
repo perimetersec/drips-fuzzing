@@ -19,21 +19,16 @@ contract EchidnaStorage is EchidnaSetup {
     /**
      * @notice Update the stream receivers for a given account.
      * @param sender Account to update
-     * @param unsortedReceivers New list of stream receivers
-     * @dev This function will sort the stream receivers, generate a new hash
-     * for the stream receivers, and update the stream receivers for the given
-     * account. It will also add a new entry to the streams history and streams
-     * history hashes for the given account. This is all available for later use.
+     * @param receivers New stream receivers
+     * @dev This function will generate a new hash for the stream receivers,
+     * update the stream receivers for the given account, and add a new entry
+     * to the streams history and streams history hashes for the given
+     * account. This is stored for later use.
      */
     function updateStreamReceivers(
         address sender,
-        StreamReceiver[] memory unsortedReceivers
+        StreamReceiver[] memory receivers
     ) internal {
-        // Sort the stream receivers
-        StreamReceiver[] memory receivers = bubbleSortStreamReceivers(
-            unsortedReceivers
-        );
-
         // Hash the new stream receivers
         bytes32 receiversHash = drips.hashStreams(receivers);
 
