@@ -6,8 +6,15 @@ import "forge-std/Test.sol";
 import "../src/echidna/Echidna.sol";
 
 contract EchidnaToFoundryTest is Test, Echidna {
+    error SomeError();
+    error SomeErrorr();
+
     function setUp() public {
         console.log("setUp");
+    }
+
+    function raiseError() external {
+        revert SomeErrorr();
     }
 
     function testDebugSomething() public {
@@ -16,279 +23,299 @@ contract EchidnaToFoundryTest is Test, Echidna {
     }
 
 
+    // function addStream(
+    //     uint8 fromAccId,
+    //     uint8 toAccId,
+    //     uint160 amountPerSec,
+    //     uint32 startTime,
+    //     uint32 duration,
+    //     int128 balanceDelta
+    // ) public returns (int128) {
+
+
     function debugSorting() public {
-        testAddStreamShouldNotRevert(0,0,900553926,0,0,0);
-        testHelperSqueezeDoesNotRevert(0,0,0);
-    }
+        // addStream(0, 0, 1e18, 0, 0, 10e18);
+        // _addStreamWithClamping(0, 0, 0, 0, 0, 0);
+        // _addStreamWithClamping(0, 0, 0, 0, 0, 0);
 
-    function debugClampAmountPerSec() public {
-        uint160 amount = 0;
-        uint160 clamped= clampAmountPerSec(amount);
-
-        console.log("amount", amount);
-        console.log("clamped", clamped);
-
-        uint160 amountPerSec = clamped;
-        uint8 receiverAccId = 0;
-        uint8 senderAccId = 64;
-
-        // amountPerSec = clampAmountPerSec(amountPerSec);
-        int128 balanceDelta = 
-            int128(uint128(amountPerSec * uint128(SECONDS_PER_CYCLE)));
-
-        require(balanceDelta > 0, "balanceDelta must be > 0");
-
-        console.log("amountPerSec", amountPerSec);
-        console.log("balanceDelta", uint128(balanceDelta));
-
-        addStream(
-            senderAccId,
-            receiverAccId,
-            amountPerSec,
-            0,
-            0,
-            balanceDelta
-        );
-
-        hevm.warp(block.timestamp + 1);
-    }
-
-    function testDebugTriggerSqueeze() public // uint8 receiverAccId,
-    // uint8 senderAccId
-    {
-        uint8 receiverAccId = 0;
-        uint8 senderAccId = 64;
-
-        address receiver = getAccount(receiverAccId);
-        address sender = getAccount(senderAccId);
-
-        addStream(senderAccId, receiverAccId, 1e18, 0, 0, 10e18);
-        vm.warp(block.timestamp + 1);
-
-        uint128 squeezableBefore = getSqueezableAmount(sender, receiver);
-
-        StreamsHistory[] memory history = getStreamsHistory(sender);
-
-        // for (uint256 i = 0; i < history.length; i++) {
-        //     history[i].streamsHash = drips.hashStreams(history[i].receivers);
-        //     history[i].receivers = new StreamReceiver[](0);
-        // }
-
-        // require(history.length > 0);
-        // require(getTotalSqueezableAmountForUser(receiver) > 0);
-        // require(squeezableBefore > 0);
-        // assert(getTotalSqueezableAmountForUser(receiver) == 0);
-
-        // uint128 squeezedAmt = _squeeze(
-        //     receiverAccId,
-        //     senderAccId,
-        //     bytes32(0),
-        //     history
-        // );
-        uint128 squeezedAmt;
-        // try
-        EchidnaHelper(address(this)).squeeze(
-            receiverAccId,
-            senderAccId,
-            bytes32(0),
-            history
-        );
-        // returns (uint128 amt) {
-        //     squeezedAmt = amt;
-        // } catch {
-        //     Debugger.log("squeeze failed");
-        //     assert(false);
-        // }
-
-        uint128 squeezableAfter = getSqueezableAmount(sender, receiver);
-
-        console.log("squeezedAmt", squeezedAmt);
-        console.log("squeezableBefore", squeezableBefore);
-        console.log("squeezableAfter", squeezableAfter);
-
-        // assert(false);
-        assert(squeezedAmt == 0);
-        assert(squeezableAfter == squeezableBefore);
-    }
-
-    function testDebugFullyFuzzedHistory() public {
-        uint8 receiverAccId = 0;
-        uint8 senderAccId = 64;
-        uint256 hashIndex = 120;
-        bytes32 receiversRandomSeed = keccak256("random");
-
-        address receiver = getAccount(receiverAccId);
-        address sender = getAccount(senderAccId);
-        uint256 receiverDripsAccId = getDripsAccountId(receiver);
-        uint256 senderDripsAccId = getDripsAccountId(sender);
-
-        addStream(senderAccId, receiverAccId, 1e18, 0, 0, 10e18);
-        addStream(senderAccId, receiverAccId, 2e18, 0, 0, 10e18);
-        addStream(senderAccId, receiverAccId, 3e18, 0, 0, 10e18);
-        addStream(senderAccId, receiverAccId, 4e18, 0, 0, 10e18);
-        addStream(senderAccId, receiverAccId, 5e18, 0, 0, 10e18);
-
-        StreamsHistory[] memory historyStructs = getStreamsHistory(sender);
-        bytes32[] memory historyHashes = getStreamsHistoryHashes(sender);
-
-        // having a hashed history requires at least 2 history entries
-        require(historyStructs.length >= 2, "need at least 2 history entries");
-
-        // hashIndex must be within bounds and cant be the last entry
-        hashIndex = hashIndex % (historyHashes.length - 1);
-
-        console.log("start at hashed history index", hashIndex);
-
-        // get the history hash at the index
-        bytes32 historyHash = historyHashes[hashIndex];
-
-        // create a history array with all entries after the hashIndex
-        StreamsHistory[] memory history = new StreamsHistory[](
-            historyStructs.length - 1 - hashIndex
-        );
-        for (uint256 i = hashIndex + 1; i < historyStructs.length; i++) {
-            history[i - hashIndex - 1] = historyStructs[i];
-        }
-
-        // hash receivers based on 'receiversRandomSeed'
-        for (uint256 i = 0; i < history.length; i++) {
-            receiversRandomSeed = keccak256(bytes.concat(receiversRandomSeed));
-            bool hashBool = (uint256(receiversRandomSeed) % 2) == 0
-                ? false
-                : true;
-
-            if (hashBool) {
-                history[i].streamsHash = drips.hashStreams(
-                    history[i].receivers
-                );
-                history[i].receivers = new StreamReceiver[](0);
-
-                console.log("hash receivers for history index", i);
+        try EchidnaToFoundryTest(address(this)).raiseError() {
+        } catch (bytes memory reason) {
+            if (bytes4(reason) == SomeError.selector) {
+                console.log("caught SomeError");
+            } else {
+                console.log("caught other error");
             }
         }
-
-        // try
-        drips.squeezeStreams(
-            receiverDripsAccId,
-            token,
-            senderDripsAccId,
-            historyHash,
-            history
-        );
-        // {
-        //     Debugger.log("squeeze succeeded");
-        //     // assert(false);
-        // } catch {
-        //     Debugger.log("squeeze failed");
-        //     assert(false);
-        // }
     }
 
-    function testDebugReceiverHashes(
-        // uint8 receiverAccId,
-        // uint8 senderAccId,
-        bytes32 receiversRandomSeed
-    ) public {
-        uint8 receiverAccId = 0;
-        uint8 senderAccId = 64;
-        // bytes32 receiversRandomSeed = keccak256("rrrrandom");
+    // function debugClampAmountPerSec() public {
+    //     uint160 amount = 0;
+    //     uint160 clamped= clampAmountPerSec(amount);
 
-        address receiver = getAccount(receiverAccId);
-        address sender = getAccount(senderAccId);
-        uint256 receiverDripsAccId = getDripsAccountId(receiver);
-        uint256 senderDripsAccId = getDripsAccountId(sender);
+    //     console.log("amount", amount);
+    //     console.log("clamped", clamped);
 
-        addStream(senderAccId, receiverAccId, 1e18, 0, 0, 10e18);
-        addStream(senderAccId, receiverAccId, 2e18, 0, 0, 10e18);
-        addStream(senderAccId, receiverAccId, 3e18, 0, 0, 10e18);
+    //     uint160 amountPerSec = clamped;
+    //     uint8 receiverAccId = 0;
+    //     uint8 senderAccId = 64;
 
-        StreamsHistory[] memory history = getStreamsHistory(sender);
+    //     // amountPerSec = clampAmountPerSec(amountPerSec);
+    //     int128 balanceDelta = 
+    //         int128(uint128(amountPerSec * uint128(SECONDS_PER_CYCLE)));
 
-        require(history.length > 0);
+    //     require(balanceDelta > 0, "balanceDelta must be > 0");
 
-        for (uint256 i = 0; i < history.length; i++) {
-            receiversRandomSeed = keccak256(bytes.concat(receiversRandomSeed));
-            bool hashBool = (uint256(receiversRandomSeed) % 2) == 0
-                ? false
-                : true;
+    //     console.log("amountPerSec", amountPerSec);
+    //     console.log("balanceDelta", uint128(balanceDelta));
 
-            if (hashBool) {
-                history[i].streamsHash = drips.hashStreams(
-                    history[i].receivers
-                );
-                history[i].receivers = new StreamReceiver[](0);
-            }
-        }
+    //     addStream(
+    //         senderAccId,
+    //         receiverAccId,
+    //         amountPerSec,
+    //         0,
+    //         0,
+    //         balanceDelta
+    //     );
 
-        // try
-        drips.squeezeStreams(
-            receiverDripsAccId,
-            token,
-            senderDripsAccId,
-            bytes32(0),
-            history
-        );
+    //     hevm.warp(block.timestamp + 1);
+    // }
 
-        // {
-        //     Debugger.log("squeeze succeeded");
-        //     console.log("squeeze succeeded");
-        //     // assert(false);
-        // } catch {
-        //     Debugger.log("squeeze failed");
-        //     console.log("squeeze failed");
-        //     // assert(false);
-        // }
-    }
+    // function testDebugTriggerSqueeze() public // uint8 receiverAccId,
+    // // uint8 senderAccId
+    // {
+    //     uint8 receiverAccId = 0;
+    //     uint8 senderAccId = 64;
 
-    function testDebugHistoryHashes() public // uint8 receiverAccId,
-    // uint8 senderAccId,
-    // uint256 hashIndex
-    {
-        uint8 receiverAccId = 0;
-        uint8 senderAccId = 64;
-        uint256 hashIndex = 123;
+    //     address receiver = getAccount(receiverAccId);
+    //     address sender = getAccount(senderAccId);
 
-        address receiver = getAccount(receiverAccId);
-        address sender = getAccount(senderAccId);
-        uint256 receiverDripsAccId = getDripsAccountId(receiver);
-        uint256 senderDripsAccId = getDripsAccountId(sender);
+    //     addStream(senderAccId, receiverAccId, 1e18, 0, 0, 10e18);
+    //     vm.warp(block.timestamp + 1);
 
-        addStream(senderAccId, receiverAccId, 1e18, 0, 0, 10e18);
-        addStream(senderAccId, receiverAccId, 2e18, 0, 0, 10e18);
-        addStream(senderAccId, receiverAccId, 3e18, 0, 0, 10e18);
+    //     uint128 squeezableBefore = getSqueezableAmount(sender, receiver);
 
-        StreamsHistory[] memory historyStructs = getStreamsHistory(sender);
-        bytes32[] memory historyHashes = getStreamsHistoryHashes(sender);
+    //     StreamsHistory[] memory history = getStreamsHistory(sender);
 
-        require(historyStructs.length >= 2);
+    //     // for (uint256 i = 0; i < history.length; i++) {
+    //     //     history[i].streamsHash = drips.hashStreams(history[i].receivers);
+    //     //     history[i].receivers = new StreamReceiver[](0);
+    //     // }
 
-        hashIndex = hashIndex % (historyHashes.length - 1);
+    //     // require(history.length > 0);
+    //     // require(getTotalSqueezableAmountForUser(receiver) > 0);
+    //     // require(squeezableBefore > 0);
+    //     // assert(getTotalSqueezableAmountForUser(receiver) == 0);
 
-        bytes32 historyHash = historyHashes[hashIndex];
+    //     // uint128 squeezedAmt = _squeeze(
+    //     //     receiverAccId,
+    //     //     senderAccId,
+    //     //     bytes32(0),
+    //     //     history
+    //     // );
+    //     uint128 squeezedAmt;
+    //     // try
+    //     EchidnaHelper(address(this)).squeeze(
+    //         receiverAccId,
+    //         senderAccId,
+    //         bytes32(0),
+    //         history
+    //     );
+    //     // returns (uint128 amt) {
+    //     //     squeezedAmt = amt;
+    //     // } catch {
+    //     //     Debugger.log("squeeze failed");
+    //     //     assert(false);
+    //     // }
 
-        StreamsHistory[] memory history = new StreamsHistory[](
-            historyStructs.length - 1 - hashIndex
-        );
-        for (uint256 i = hashIndex + 1; i < historyStructs.length; i++) {
-            history[i - hashIndex - 1] = historyStructs[i];
-        }
+    //     uint128 squeezableAfter = getSqueezableAmount(sender, receiver);
 
-        try
-            drips.squeezeStreams(
-                receiverDripsAccId,
-                token,
-                senderDripsAccId,
-                historyHash,
-                history
-            )
-        {
-            Debugger.log("squeeze succeeded");
-            console.log("squeeze succeeded");
-            // assert(false);
-        } catch {
-            Debugger.log("squeeze failed");
-            console.log("squeeze failed");
-            assert(false);
-        }
-    }
+    //     console.log("squeezedAmt", squeezedAmt);
+    //     console.log("squeezableBefore", squeezableBefore);
+    //     console.log("squeezableAfter", squeezableAfter);
+
+    //     // assert(false);
+    //     assert(squeezedAmt == 0);
+    //     assert(squeezableAfter == squeezableBefore);
+    // }
+
+    // function testDebugFullyFuzzedHistory() public {
+    //     uint8 receiverAccId = 0;
+    //     uint8 senderAccId = 64;
+    //     uint256 hashIndex = 120;
+    //     bytes32 receiversRandomSeed = keccak256("random");
+
+    //     address receiver = getAccount(receiverAccId);
+    //     address sender = getAccount(senderAccId);
+    //     uint256 receiverDripsAccId = getDripsAccountId(receiver);
+    //     uint256 senderDripsAccId = getDripsAccountId(sender);
+
+    //     addStream(senderAccId, receiverAccId, 1e18, 0, 0, 10e18);
+    //     addStream(senderAccId, receiverAccId, 2e18, 0, 0, 10e18);
+    //     addStream(senderAccId, receiverAccId, 3e18, 0, 0, 10e18);
+    //     addStream(senderAccId, receiverAccId, 4e18, 0, 0, 10e18);
+    //     addStream(senderAccId, receiverAccId, 5e18, 0, 0, 10e18);
+
+    //     StreamsHistory[] memory historyStructs = getStreamsHistory(sender);
+    //     bytes32[] memory historyHashes = getStreamsHistoryHashes(sender);
+
+    //     // having a hashed history requires at least 2 history entries
+    //     require(historyStructs.length >= 2, "need at least 2 history entries");
+
+    //     // hashIndex must be within bounds and cant be the last entry
+    //     hashIndex = hashIndex % (historyHashes.length - 1);
+
+    //     console.log("start at hashed history index", hashIndex);
+
+    //     // get the history hash at the index
+    //     bytes32 historyHash = historyHashes[hashIndex];
+
+    //     // create a history array with all entries after the hashIndex
+    //     StreamsHistory[] memory history = new StreamsHistory[](
+    //         historyStructs.length - 1 - hashIndex
+    //     );
+    //     for (uint256 i = hashIndex + 1; i < historyStructs.length; i++) {
+    //         history[i - hashIndex - 1] = historyStructs[i];
+    //     }
+
+    //     // hash receivers based on 'receiversRandomSeed'
+    //     for (uint256 i = 0; i < history.length; i++) {
+    //         receiversRandomSeed = keccak256(bytes.concat(receiversRandomSeed));
+    //         bool hashBool = (uint256(receiversRandomSeed) % 2) == 0
+    //             ? false
+    //             : true;
+
+    //         if (hashBool) {
+    //             history[i].streamsHash = drips.hashStreams(
+    //                 history[i].receivers
+    //             );
+    //             history[i].receivers = new StreamReceiver[](0);
+
+    //             console.log("hash receivers for history index", i);
+    //         }
+    //     }
+
+    //     // try
+    //     drips.squeezeStreams(
+    //         receiverDripsAccId,
+    //         token,
+    //         senderDripsAccId,
+    //         historyHash,
+    //         history
+    //     );
+    //     // {
+    //     //     Debugger.log("squeeze succeeded");
+    //     //     // assert(false);
+    //     // } catch {
+    //     //     Debugger.log("squeeze failed");
+    //     //     assert(false);
+    //     // }
+    // }
+
+    // function testDebugReceiverHashes(
+    //     // uint8 receiverAccId,
+    //     // uint8 senderAccId,
+    //     bytes32 receiversRandomSeed
+    // ) public {
+    //     uint8 receiverAccId = 0;
+    //     uint8 senderAccId = 64;
+    //     // bytes32 receiversRandomSeed = keccak256("rrrrandom");
+
+    //     address receiver = getAccount(receiverAccId);
+    //     address sender = getAccount(senderAccId);
+    //     uint256 receiverDripsAccId = getDripsAccountId(receiver);
+    //     uint256 senderDripsAccId = getDripsAccountId(sender);
+
+    //     addStream(senderAccId, receiverAccId, 1e18, 0, 0, 10e18);
+    //     addStream(senderAccId, receiverAccId, 2e18, 0, 0, 10e18);
+    //     addStream(senderAccId, receiverAccId, 3e18, 0, 0, 10e18);
+
+    //     StreamsHistory[] memory history = getStreamsHistory(sender);
+
+    //     require(history.length > 0);
+
+    //     for (uint256 i = 0; i < history.length; i++) {
+    //         receiversRandomSeed = keccak256(bytes.concat(receiversRandomSeed));
+    //         bool hashBool = (uint256(receiversRandomSeed) % 2) == 0
+    //             ? false
+    //             : true;
+
+    //         if (hashBool) {
+    //             history[i].streamsHash = drips.hashStreams(
+    //                 history[i].receivers
+    //             );
+    //             history[i].receivers = new StreamReceiver[](0);
+    //         }
+    //     }
+
+    //     // try
+    //     drips.squeezeStreams(
+    //         receiverDripsAccId,
+    //         token,
+    //         senderDripsAccId,
+    //         bytes32(0),
+    //         history
+    //     );
+
+    //     // {
+    //     //     Debugger.log("squeeze succeeded");
+    //     //     console.log("squeeze succeeded");
+    //     //     // assert(false);
+    //     // } catch {
+    //     //     Debugger.log("squeeze failed");
+    //     //     console.log("squeeze failed");
+    //     //     // assert(false);
+    //     // }
+    // }
+
+    // function testDebugHistoryHashes() public // uint8 receiverAccId,
+    // // uint8 senderAccId,
+    // // uint256 hashIndex
+    // {
+    //     uint8 receiverAccId = 0;
+    //     uint8 senderAccId = 64;
+    //     uint256 hashIndex = 123;
+
+    //     address receiver = getAccount(receiverAccId);
+    //     address sender = getAccount(senderAccId);
+    //     uint256 receiverDripsAccId = getDripsAccountId(receiver);
+    //     uint256 senderDripsAccId = getDripsAccountId(sender);
+
+    //     addStream(senderAccId, receiverAccId, 1e18, 0, 0, 10e18);
+    //     addStream(senderAccId, receiverAccId, 2e18, 0, 0, 10e18);
+    //     addStream(senderAccId, receiverAccId, 3e18, 0, 0, 10e18);
+
+    //     StreamsHistory[] memory historyStructs = getStreamsHistory(sender);
+    //     bytes32[] memory historyHashes = getStreamsHistoryHashes(sender);
+
+    //     require(historyStructs.length >= 2);
+
+    //     hashIndex = hashIndex % (historyHashes.length - 1);
+
+    //     bytes32 historyHash = historyHashes[hashIndex];
+
+    //     StreamsHistory[] memory history = new StreamsHistory[](
+    //         historyStructs.length - 1 - hashIndex
+    //     );
+    //     for (uint256 i = hashIndex + 1; i < historyStructs.length; i++) {
+    //         history[i - hashIndex - 1] = historyStructs[i];
+    //     }
+
+    //     try
+    //         drips.squeezeStreams(
+    //             receiverDripsAccId,
+    //             token,
+    //             senderDripsAccId,
+    //             historyHash,
+    //             history
+    //         )
+    //     {
+    //         Debugger.log("squeeze succeeded");
+    //         console.log("squeeze succeeded");
+    //         // assert(false);
+    //     } catch {
+    //         Debugger.log("squeeze failed");
+    //         console.log("squeeze failed");
+    //         assert(false);
+    //     }
+    // }
 }
