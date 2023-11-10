@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: MIT
 import "./EchidnaSetup.sol";
-import "./Debugger.sol";
 
 /**
  * @title Mixin for storing stream receivers and streams history

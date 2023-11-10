@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-import {Managed} from "../Managed.sol";
+import {Managed} from "src/Managed.sol";
 
 contract ManagedEchidna is Managed {
     constructor() Managed() {}

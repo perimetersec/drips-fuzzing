@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 import {IERC20} from "openzeppelin-contracts/token/ERC20/utils/SafeERC20.sol";
-import {Drips} from "../Drips.sol";
+import {Drips} from "src/Drips.sol";
 
 import {ManagedEchidna} from "./ManagedEchidna.sol";
 
