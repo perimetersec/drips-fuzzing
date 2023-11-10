@@ -1,8 +1,27 @@
 // SPDX-License-Identifier: MIT
 
-import "./EchidnaHelperStreams.sol";
+import "./base/EchidnaBase.sol";
 
-contract EchidnaTest is EchidnaHelperStreams {
+contract EchidnaTest is EchidnaBase {
+    ///@notice Giving an amount `<=` token balance should never revert
+    function testGiveShouldNotRevert(
+        uint8 fromAccId,
+        uint8 toAccId,
+        uint128 amount
+    ) public {
+        address from = getAccount(fromAccId);
+        address to = getAccount(toAccId);
+
+        uint256 toDripsAccId = getDripsAccountId(to);
+
+        require(amount <= token.balanceOf(from));
+
+        hevm.prank(from);
+        try driver.give(toDripsAccId, token, amount) {} catch {
+            assert(false);
+        }
+    }
+
     ///@notice Test internal accounting after receiving streams
     function testReceiveStreams(uint8 targetAccId, uint32 maxCycles) public {
         address target = getAccount(targetAccId);
@@ -18,6 +37,18 @@ contract EchidnaTest is EchidnaHelperStreams {
             assert(splittableAfter > splittableBefore);
         } else {
             assert(splittableAfter == splittableBefore);
+        }
+    }
+
+    ///@notice Receiving streams should never revert
+    function testReceiveStreamsShouldNotRevert(uint8 targetAccId) public {
+        address target = getAccount(targetAccId);
+        uint256 targetDripsAccId = getDripsAccountId(target);
+
+        try
+            drips.receiveStreams(targetDripsAccId, token, type(uint32).max)
+        {} catch {
+            assert(false);
         }
     }
 
@@ -97,6 +128,18 @@ contract EchidnaTest is EchidnaHelperStreams {
         }
     }
 
+    ///@notice Splitting should never revert
+    function testSplitShouldNotRevert(uint8 targetAccId) public {
+        address target = getAccount(targetAccId);
+        uint256 targetDripsAccId = getDripsAccountId(target);
+
+        try
+            drips.split(targetDripsAccId, token, new SplitsReceiver[](0))
+        {} catch {
+            assert(false);
+        }
+    }
+
     ///@notice Test internal accounting after collecting
     function testCollect(uint8 fromAccId, uint8 toAccId) public {
         address from = getAccount(fromAccId);
@@ -116,165 +159,15 @@ contract EchidnaTest is EchidnaHelperStreams {
         assert(tokenBalAfter == tokenBalBefore + collected);
     }
 
-    ///@notice Test internal accounting after updating stream balance
-    function testSetStreamBalance(uint8 targetAccId, int128 balanceDelta)
-        public
-    {
-        address target = getAccount(targetAccId);
-        uint256 targetDripsAccId = getDripsAccountId(target);
-
-        uint256 tokenBalanceBefore = token.balanceOf(target);
-        uint128 streamBalanceBefore = drips.balanceAt(
-            targetDripsAccId,
-            token,
-            getStreamReceivers(target),
-            uint32(block.timestamp)
-        );
-
-        int128 realBalanceDelta = setStreamBalance(targetAccId, balanceDelta);
-
-        uint256 tokenBalanceAfter = token.balanceOf(target);
-        uint128 streamBalanceAfter = drips.balanceAt(
-            targetDripsAccId,
-            token,
-            getStreamReceivers(target),
-            uint32(block.timestamp)
-        );
-
-        if (balanceDelta >= 0) {
-            assert(realBalanceDelta == balanceDelta);
-        } else {
-            assert(realBalanceDelta <= 0);
-            assert(realBalanceDelta >= balanceDelta);
-        }
-
-        assert(
-            int256(tokenBalanceAfter) ==
-                int256(tokenBalanceBefore) - realBalanceDelta
-        );
-        assert(
-            int128(streamBalanceAfter) ==
-                int128(streamBalanceBefore) + realBalanceDelta
-        );
-    }
-
-    function testWithdrawAllTokens() external heavy {
-        squeezeAllSenders(ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER0]);
-        squeezeAllSenders(ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER1]);
-        squeezeAllSenders(ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER2]);
-        squeezeAllSenders(ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER3]);
-
-        receiveStreamsSplitAndCollectToSelf(
-            ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER0]
-        );
-        receiveStreamsSplitAndCollectToSelf(
-            ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER1]
-        );
-        receiveStreamsSplitAndCollectToSelf(
-            ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER2]
-        );
-        receiveStreamsSplitAndCollectToSelf(
-            ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER3]
-        );
-
-        _setStreamBalanceWithdrawAll(ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER0]);
-        _setStreamBalanceWithdrawAll(ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER1]);
-        _setStreamBalanceWithdrawAll(ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER2]);
-        _setStreamBalanceWithdrawAll(ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER3]);
-
-        uint256 dripsBalance = token.balanceOf(address(drips));
-        uint256 user0Balance = token.balanceOf(ADDRESS_USER0);
-        uint256 user1Balance = token.balanceOf(ADDRESS_USER1);
-        uint256 user2Balance = token.balanceOf(ADDRESS_USER2);
-        uint256 user3Balance = token.balanceOf(ADDRESS_USER3);
-
-        uint256 totalUserBalance = user0Balance +
-            user1Balance +
-            user2Balance +
-            user3Balance;
-
-        assert(dripsBalance == 0);
-        assert(totalUserBalance == STARTING_BALANCE * 4);
-    }
-
-    function testBalanceAtInFuture(
-        uint8 fromAccId,
-        uint8 toAccId,
-        uint160 amtPerSecAdded
-    ) public heavy {
+    ///@notice Collecting should never revert
+    function testCollectShouldNotRevert(uint8 fromAccId, uint8 toAccId) public {
         address from = getAccount(fromAccId);
         address to = getAccount(toAccId);
-        uint256 fromDripsAccId = getDripsAccountId(from);
-        uint256 toDripsAccId = getDripsAccountId(to);
 
-        amtPerSecAdded = clampAmountPerSec(amtPerSecAdded);
-
-        // the timestamps we are comparing
-        uint256 currentTimestamp = block.timestamp;
-        uint256 futureTimestamp = getCurrentCycleEnd() + 1;
-
-        // retrieve initial balances
-        uint128 balanceInitial = getStreamBalanceForUser(
-            from,
-            uint32(block.timestamp)
-        );
-        uint128 receivableInitial = getReceivableAmountForAllUsers();
-
-        // look at balances in the future if we wouldnt do anything
-        hevm.warp(futureTimestamp);
-        uint128 balanceBaseline = getStreamBalanceForUser(
-            from,
-            uint32(block.timestamp)
-        );
-        uint128 receivableBaseline = getReceivableAmountForAllUsers();
-        hevm.warp(currentTimestamp);
-
-        // add a stream
-        // make sure we add enough balance to complete the cycle
-        uint128 balanceAdded = uint128(amtPerSecAdded) * SECONDS_PER_CYCLE;
-        balanceAdded = uint128(clampBalanceDelta(int128(balanceAdded), from));
-        require(balanceAdded / amtPerSecAdded >= SECONDS_PER_CYCLE);
-        addStream(
-            fromAccId,
-            toAccId,
-            amtPerSecAdded,
-            0,
-            0,
-            int128(balanceAdded)
-        );
-
-        // retrieve balances after adding stream
-        uint128 balanceBefore = getStreamBalanceForUser(
-            from,
-            uint32(block.timestamp)
-        );
-        uint128 receivableBefore = getReceivableAmountForAllUsers();
-
-        // jump to future
-        hevm.warp(futureTimestamp);
-
-        // retrieve balances in the future after adding the stream
-        uint128 balanceAfter = getStreamBalanceForUser(
-            from,
-            uint32(block.timestamp)
-        );
-        uint128 receivableAfter = getReceivableAmountForAllUsers();
-
-        // sanity checks
-        assert(balanceInitial >= balanceBaseline);
-        assert(balanceBefore >= balanceAfter);
-        assert(receivableAfter >= receivableBaseline);
-
-        // the amount that would have been streamed if we do nothing
-        uint128 baselineBalanceStreamed = balanceInitial - balanceBaseline;
-
-        // calculate expected balance change including the effect of the
-        // added stream
-        uint128 expectedBalanceChange = balanceBefore -
-            balanceAfter -
-            baselineBalanceStreamed;
-        uint128 expectedReceivedChange = receivableAfter - receivableBaseline;
-
-        assert(expectedBalanceChange == expectedReceivedChange);
+        hevm.prank(from);
+        try driver.collect(token, to) {} catch {
+            assert(false);
+        }
     }
+
 }

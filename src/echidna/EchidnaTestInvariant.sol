@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 
-import "./EchidnaTestShouldNotRevert.sol";
+import "./base/EchidnaBase.sol";
 
-contract EchidnaTestInvariant is EchidnaTestShouldNotRevert {
+contract EchidnaTestInvariant is EchidnaBase {
     ///@notice Withdrawing directly from Drips should always fail
     function invariantWithdrawShouldAlwaysFail(uint256 amount) public {
         require(amount > 0);

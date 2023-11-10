@@ -1,12 +1,14 @@
 // SPDX-License-Identifier: MIT
 
 import "./base/EchidnaBase.sol";
-// import "./EchidnaTestExperimental.sol";
+import "./EchidnaTestInvariant.sol";
+import "./EchidnaTest.sol";
+import "./EchidnaStreams.sol";
+import "./EchidnaSqueeze.sol";
 
-// contract Echidna is EchidnaTestExperimental {}
-contract Echidna is EchidnaBase {
-    function testSomething() public {
-        assert(true);
-    }
-
-}
+contract Echidna is
+    EchidnaTestInvariant,
+    EchidnaTest,
+    EchidnaStreams,
+    EchidnaSqueeze
+{}
