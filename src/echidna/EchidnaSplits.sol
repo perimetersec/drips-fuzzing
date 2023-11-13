@@ -91,6 +91,17 @@ contract EchidnaSplits is EchidnaBase {
         }
     }
 
+    function _setSplits(uint8 senderAccId, SplitsReceiver[] memory receivers)
+        internal
+    {
+        address sender = getAccount(senderAccId);
+
+        updateSplitsReceivers(sender, receivers);
+
+        hevm.prank(sender);
+        driver.setSplits(receivers);
+    }
+
     function setSplits(
         uint8 senderAccId,
         uint8 receiverAccId,
@@ -107,8 +118,7 @@ contract EchidnaSplits is EchidnaBase {
         });
         updateSplitsReceivers(sender, receivers);
 
-        hevm.prank(sender);
-        driver.setSplits(receivers);
+        _setSplits(senderAccId, receivers);
     }
 
     function setSplitsWithClamping(
@@ -118,5 +128,33 @@ contract EchidnaSplits is EchidnaBase {
     ) public {
         weight = 1 + (weight % (drips.TOTAL_SPLITS_WEIGHT() - 1));
         setSplits(senderAccId, receiverAccId, weight);
+    }
+
+    function addSplitsReceiver(
+        uint8 senderAccId,
+        uint8 receiverAccId,
+        uint32 weight
+    ) public {
+        address sender = getAccount(senderAccId);
+        address receiver = getAccount(receiverAccId);
+        uint256 senderDripsAccId = getDripsAccountId(sender);
+        uint256 receiverDripsAccId = getDripsAccountId(receiver);
+
+        SplitsReceiver[] memory oldReceivers = getSplitsReceivers(sender);
+
+        SplitsReceiver memory addedReceiver = SplitsReceiver({
+            accountId: receiverDripsAccId,
+            weight: weight
+        });
+
+        SplitsReceiver[] memory newReceivers = new SplitsReceiver[](
+            oldReceivers.length + 1
+        );
+        for (uint256 i = 0; i < oldReceivers.length; i++) {
+            newReceivers[i] = oldReceivers[i];
+        }
+        newReceivers[newReceivers.length - 1] = addedReceiver;
+
+        _setSplits(senderAccId, newReceivers);
     }
 }
