@@ -249,6 +249,11 @@ contract EchidnaSplits is EchidnaBase {
         _setSplits(senderAccId, newReceivers);
     }
 
+    function removeAllSplits(uint8 targetAccId) public {
+        SplitsReceiver[] memory receivers = new SplitsReceiver[](0);
+        _setSplits(targetAccId, receivers);
+    }
+
     function clampSplitWeight(uint32 weight) public view returns (uint32) {
         return 1 + (weight % (drips.TOTAL_SPLITS_WEIGHT() - 1));
     }
