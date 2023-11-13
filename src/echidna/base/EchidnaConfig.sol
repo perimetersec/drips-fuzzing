@@ -33,6 +33,8 @@ contract EchidnaConfig {
 
     uint32 internal constant MAX_STREAM_DURATION = CYCLE_FUZZING_BUFFER_SECONDS;
 
+    uint256 internal constant SPLIT_ROUNDING_TOLERANCE = 1;
+
     bool internal constant TOGGLE_EXPERIMENTAL_TESTS_ENABLED = true;
     bool internal constant TOGGLE_HEAVY_TESTS_ENABLED = true;
     bool internal constant TOGGLE_MAXENDHINTS_ENABLED = true;

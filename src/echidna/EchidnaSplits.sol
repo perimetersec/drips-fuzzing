@@ -64,6 +64,80 @@ contract EchidnaSplits is EchidnaBase {
         assert(colBalAfter == colBalBefore + collectableAmt);
     }
 
+    function testReceiversReceivedSplit(uint8 targetAccId) public {
+        address target = getAccount(targetAccId);
+        uint256 targetDripsAccId = getDripsAccountId(target);
+
+        uint128 amountToBeSplit = drips.splittable(targetDripsAccId, token);
+        SplitsReceiver[] memory receivers = getSplitsReceivers(target);
+
+        // storage for all receivers
+        uint128[] memory splittableBefore = new uint128[](receivers.length);
+        uint128[] memory splittableAfter = new uint128[](receivers.length);
+        uint32[] memory weights = new uint32[](receivers.length);
+        uint128[] memory amounts = new uint128[](receivers.length);
+
+        for (uint256 i = 0; i < receivers.length; i++) {
+            // store splittable before
+            splittableBefore[i] = drips.splittable(
+                receivers[i].accountId,
+                token
+            );
+
+            // calculate amount the receiver should get
+            weights[i] = receivers[i].weight;
+            amounts[i] = uint128(
+                (amountToBeSplit * weights[i]) / drips.TOTAL_SPLITS_WEIGHT()
+            );
+        }
+
+        // split
+        (uint128 collectableAmt, uint128 splitAmt) = _split(targetAccId);
+
+        // store splittable after
+        for (uint256 i = 0; i < receivers.length; i++) {
+            splittableAfter[i] = drips.splittable(
+                receivers[i].accountId,
+                token
+            );
+        }
+
+        for (uint256 i = 0; i < receivers.length; i++) {
+            Debugger.log("i", i);
+            Debugger.log("weights[i]", weights[i]);
+            Debugger.log("amounts[i]", amounts[i]);
+            Debugger.log("splittableBefore[i]", splittableBefore[i]);
+            Debugger.log("splittableAfter[i]", splittableAfter[i]);
+            Debugger.log("--------------------");
+
+            // calculate expected amount after the split
+            uint128 expectedAfter;
+            if (receivers[i].accountId != targetDripsAccId) {
+                // splitting so someone else is trivial
+                expectedAfter = splittableBefore[i] + amounts[i];
+            } else {
+                // splitting to self needs to take into account that the splittable
+                // amount before contains the actual amount that was split to all
+                // the receivers. we should end up with only the amount that was
+                // split to ourselves
+                expectedAfter =
+                    splittableBefore[i] -
+                    amountToBeSplit +
+                    amounts[i];
+            }
+
+            // calculate difference between expected and actual
+            int256 difference = int256(uint256(splittableAfter[i])) -
+                int256(uint256(expectedAfter));
+
+            // check if difference is within tolerance
+            assert(
+                difference >= -int256(SPLIT_ROUNDING_TOLERANCE) &&
+                    difference <= int256(SPLIT_ROUNDING_TOLERANCE)
+            );
+        }
+    }
+
     ///@notice Splitting should never revert
     function testSplitShouldNotRevert(uint8 targetAccId) public {
         address target = getAccount(targetAccId);
