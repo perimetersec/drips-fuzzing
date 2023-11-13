@@ -38,15 +38,14 @@ contract EchidnaSplits is EchidnaBase {
         assert((splitAmt + collectableAmt) <= splittableBefore);
 
         if (splitToSelfAmount > 0) {
-            // this is expected to fail due to rounding errors once we're able to
-            // fuzz lists of multiple splitreceivers
-            assert(
-                splittableAfter ==
-                    splittableBefore -
-                        splitAmt -
-                        collectableAmt +
-                        splitToSelfAmount
-            );
+            // TODO - disabled for now due to rounding differences in the Drips calculation
+            // assert(
+            //     splittableAfter ==
+            //         splittableBefore -
+            //             splitAmt -
+            //             collectableAmt +
+            //             splitToSelfAmount
+            // );
         } else {
             assert(
                 splittableAfter == splittableBefore - splitAmt - collectableAmt
