@@ -249,8 +249,6 @@ contract EchidnaSplits is EchidnaBase {
         uint256 senderDripsAccId = getDripsAccountId(sender);
         uint256 receiverDripsAccId = getDripsAccountId(receiver);
 
-        weight = clampSplitWeight(weight);
-
         SplitsReceiver[] memory oldReceivers = getSplitsReceivers(sender);
 
         SplitsReceiver memory addedReceiver = SplitsReceiver({
@@ -267,6 +265,15 @@ contract EchidnaSplits is EchidnaBase {
         newReceivers[newReceivers.length - 1] = addedReceiver;
 
         _setSplits(senderAccId, newReceivers);
+    }
+
+    function addSplitsReceiverWithClamping(
+        uint8 senderAccId,
+        uint8 receiverAccId,
+        uint32 weight
+    ) public {
+        weight = clampSplitWeight(weight);
+        addSplitsReceiver(senderAccId, receiverAccId, weight);
     }
 
     function removeAllSplits(uint8 targetAccId) public {
