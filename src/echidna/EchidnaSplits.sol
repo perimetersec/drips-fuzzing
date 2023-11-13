@@ -149,6 +149,26 @@ contract EchidnaSplits is EchidnaBase {
         }
     }
 
+    function testSplitViewVsActual(uint8 targetAccId) public {
+        address target = getAccount(targetAccId);
+        uint256 targetDripsAccId = getDripsAccountId(target);
+
+        uint128 splittable = drips.splittable(targetDripsAccId, token);
+
+        (uint128 collectableAmtView, uint128 splitAmtView) = drips.splitResult(
+            targetDripsAccId,
+            getSplitsReceivers(target),
+            splittable
+        );
+
+        (uint128 collectableAmtActual, uint128 splitAmtActual) = _split(
+            targetAccId
+        );
+
+        assert(collectableAmtView == collectableAmtActual);
+        assert(splitAmtView == splitAmtActual);
+    }
+
     ///@notice Splitting should never revert
     function testSplitShouldNotRevert(uint8 targetAccId) public {
         address target = getAccount(targetAccId);
