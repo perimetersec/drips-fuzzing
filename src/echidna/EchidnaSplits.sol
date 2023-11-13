@@ -37,18 +37,29 @@ contract EchidnaSplits is EchidnaBase {
         // sanity check
         assert((splitAmt + collectableAmt) <= splittableBefore);
 
-        if (splitToSelfAmount > 0) {
-            // TODO - disabled for now due to rounding differences in the Drips calculation
-            // assert(
-            //     splittableAfter ==
-            //         splittableBefore -
-            //             splitAmt -
-            //             collectableAmt +
-            //             splitToSelfAmount
-            // );
-        } else {
+        if (splitToSelfAmount == 0) {
+            // if we're not splitting to ourselves, things are simple
             assert(
                 splittableAfter == splittableBefore - splitAmt - collectableAmt
+            );
+        } else {
+            // if we ARE splitting to ourselves, there are rounding errors
+            // to take into account.
+
+            // calculate expected amount after the split
+            uint128 expectedSplittableAfter = splittableBefore -
+                splitAmt -
+                collectableAmt +
+                splitToSelfAmount;
+
+            // calculate difference between expected and actual
+            int256 difference = int256(uint256(splittableAfter)) -
+                int256(uint256(expectedSplittableAfter));
+
+            // check if difference is within tolerance
+            assert(
+                difference >= -int256(SPLIT_ROUNDING_TOLERANCE) &&
+                    difference <= int256(SPLIT_ROUNDING_TOLERANCE)
             );
         }
     }
