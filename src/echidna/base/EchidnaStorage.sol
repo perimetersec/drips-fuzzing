@@ -166,6 +166,31 @@ contract EchidnaStorage is EchidnaSetup {
     }
 
     /**
+     * @notice Sort the splits receivers.
+     * @param unsorted Unsorted splits receivers
+     * @return Sorted splits receivers
+     */
+    function bubbleSortSplitsReceivers(SplitsReceiver[] memory unsorted)
+        internal
+        returns (SplitsReceiver[] memory)
+    {
+        uint256 n = unsorted.length;
+        if (n <= 1) return unsorted;
+
+        SplitsReceiver[] memory sorted = unsorted;
+        for (uint256 i = 0; i < n - 1; i++) {
+            for (uint256 j = 0; j < n - i - 1; j++) {
+                if (bubbleSortSplitsReceiverGT(sorted[j], sorted[j + 1])) {
+                    SplitsReceiver memory temp = sorted[j];
+                    sorted[j] = sorted[j + 1];
+                    sorted[j + 1] = temp;
+                }
+            }
+        }
+        return sorted;
+    }
+
+    /**
      * @notice Compare two stream receivers.
      * @param a First stream receiver
      * @param b Second stream receiver
@@ -183,6 +208,24 @@ contract EchidnaStorage is EchidnaSetup {
         if (StreamConfig.unwrap(a.config) != StreamConfig.unwrap(b.config)) {
             return
                 StreamConfig.unwrap(a.config) > StreamConfig.unwrap(b.config);
+        }
+        revert DuplicateError();
+    }
+
+    /**
+     * @notice Compare two splits receivers.
+     * @param a First splits receiver
+     * @param b Second splits receiver
+     * @return True if `a` is greater than `b`, false otherwise
+     * @dev This function will compare two splits receivers by account ID.
+     * It will revert if there are duplicate splits receivers.
+     */
+    function bubbleSortSplitsReceiverGT(
+        SplitsReceiver memory a,
+        SplitsReceiver memory b
+    ) internal returns (bool) {
+        if (a.accountId != b.accountId) {
+            return a.accountId > b.accountId;
         }
         revert DuplicateError();
     }
