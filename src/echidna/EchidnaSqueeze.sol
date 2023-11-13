@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: MIT
 
+import "./EchidnaSplits.sol";
 import "./EchidnaStreams.sol";
 
-contract EchidnaSqueeze is EchidnaStreams {
+contract EchidnaSqueeze is EchidnaSplits, EchidnaStreams {
     function testWithdrawAllTokensShouldNotRevert() public heavy {
         try EchidnaSqueeze(address(this)).testWithdrawAllTokens() {} catch {
             assert(false);
@@ -218,6 +219,13 @@ contract EchidnaSqueeze is EchidnaStreams {
     }
 
     function testWithdrawAllTokens() external heavy {
+        // remove all splits to prevent tokens from getting stuck in case
+        // there are splits to self
+        removeAllSplits(ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER0]);
+        removeAllSplits(ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER1]);
+        removeAllSplits(ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER2]);
+        removeAllSplits(ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER3]);
+
         squeezeAllSenders(ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER0]);
         squeezeAllSenders(ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER1]);
         squeezeAllSenders(ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER2]);
