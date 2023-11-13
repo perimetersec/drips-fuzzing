@@ -37,7 +37,7 @@ contract EchidnaSplits is EchidnaBase {
         // sanity check
         assert((splitAmt + collectableAmt) <= splittableBefore);
 
-        if (splitToSelfAmount == 0) {
+        if (splitToSelfWeight == 0) {
             // if we're not splitting to ourselves, things are simple
             assert(
                 splittableAfter == splittableBefore - splitAmt - collectableAmt
