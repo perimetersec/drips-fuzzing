@@ -13,15 +13,27 @@ contract EchidnaToFoundryTest is Test, Echidna {
         console.log("setUp");
     }
 
-    function raiseError() external {
-        revert SomeErrorr();
-    }
-
     function testDebugSomething() public {
-        // debugClampAmountPerSec();
-        debugSorting();
+        debugSplitting();
     }
 
+    function debugSplitting() public {
+
+        addSplitsReceiver(192, 0,    17525440);
+        addSplitsReceiver(204, 254, 608089045);
+
+        give(1, 129, 7261312);
+        setSplits(135, 197, 1);
+        splitAndCollectToSelf(129);
+
+        console.log("---- VOOR ----");
+        testSplittableAfterSplit(194);
+        console.log("---- NA ----");
+    }
+
+    // function raiseError() external {
+    //     revert SomeErrorr();
+    // }
 
     // function addStream(
     //     uint8 fromAccId,
@@ -32,21 +44,20 @@ contract EchidnaToFoundryTest is Test, Echidna {
     //     int128 balanceDelta
     // ) public returns (int128) {
 
+    // function debugSorting() public {
+    //     // addStream(0, 0, 1e18, 0, 0, 10e18);
+    //     // _addStreamWithClamping(0, 0, 0, 0, 0, 0);
+    //     // _addStreamWithClamping(0, 0, 0, 0, 0, 0);
 
-    function debugSorting() public {
-        // addStream(0, 0, 1e18, 0, 0, 10e18);
-        // _addStreamWithClamping(0, 0, 0, 0, 0, 0);
-        // _addStreamWithClamping(0, 0, 0, 0, 0, 0);
-
-        try EchidnaToFoundryTest(address(this)).raiseError() {
-        } catch (bytes memory reason) {
-            if (bytes4(reason) == SomeError.selector) {
-                console.log("caught SomeError");
-            } else {
-                console.log("caught other error");
-            }
-        }
-    }
+    //     try EchidnaToFoundryTest(address(this)).raiseError() {
+    //     } catch (bytes memory reason) {
+    //         if (bytes4(reason) == SomeError.selector) {
+    //             console.log("caught SomeError");
+    //         } else {
+    //             console.log("caught other error");
+    //         }
+    //     }
+    // }
 
     // function debugClampAmountPerSec() public {
     //     uint160 amount = 0;
@@ -60,7 +71,7 @@ contract EchidnaToFoundryTest is Test, Echidna {
     //     uint8 senderAccId = 64;
 
     //     // amountPerSec = clampAmountPerSec(amountPerSec);
-    //     int128 balanceDelta = 
+    //     int128 balanceDelta =
     //         int128(uint128(amountPerSec * uint128(SECONDS_PER_CYCLE)));
 
     //     require(balanceDelta > 0, "balanceDelta must be > 0");
