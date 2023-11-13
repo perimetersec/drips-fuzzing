@@ -91,15 +91,20 @@ contract EchidnaSplits is EchidnaBase {
         }
     }
 
-    function _setSplits(uint8 senderAccId, SplitsReceiver[] memory receivers)
-        internal
-    {
+    function _setSplits(
+        uint8 senderAccId,
+        SplitsReceiver[] memory unsortedReceivers
+    ) internal {
         address sender = getAccount(senderAccId);
 
-        updateSplitsReceivers(sender, receivers);
+        SplitsReceiver[] memory newReceivers = bubbleSortSplitsReceivers(
+            unsortedReceivers
+        );
+
+        updateSplitsReceivers(sender, newReceivers);
 
         hevm.prank(sender);
-        driver.setSplits(receivers);
+        driver.setSplits(newReceivers);
     }
 
     function setSplits(
@@ -126,7 +131,7 @@ contract EchidnaSplits is EchidnaBase {
         uint8 receiverAccId,
         uint32 weight
     ) public {
-        weight = 1 + (weight % (drips.TOTAL_SPLITS_WEIGHT() - 1));
+        weight = clampSplitWeight(weight);
         setSplits(senderAccId, receiverAccId, weight);
     }
 
@@ -139,6 +144,8 @@ contract EchidnaSplits is EchidnaBase {
         address receiver = getAccount(receiverAccId);
         uint256 senderDripsAccId = getDripsAccountId(sender);
         uint256 receiverDripsAccId = getDripsAccountId(receiver);
+
+        weight = clampSplitWeight(weight);
 
         SplitsReceiver[] memory oldReceivers = getSplitsReceivers(sender);
 
@@ -156,5 +163,9 @@ contract EchidnaSplits is EchidnaBase {
         newReceivers[newReceivers.length - 1] = addedReceiver;
 
         _setSplits(senderAccId, newReceivers);
+    }
+
+    function clampSplitWeight(uint32 weight) public view returns (uint32) {
+        return 1 + (weight % (drips.TOTAL_SPLITS_WEIGHT() - 1));
     }
 }
