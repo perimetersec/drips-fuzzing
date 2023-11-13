@@ -75,6 +75,22 @@ contract EchidnaSplits is EchidnaBase {
         }
     }
 
+    function testSetSplitsShouldNotRevert(
+        uint8 senderAccId,
+        uint8 receiverAccId,
+        uint32 weight
+    ) public {
+        try
+            EchidnaSplits(address(this)).setSplitsWithClamping(
+                senderAccId,
+                receiverAccId,
+                weight
+            )
+        {} catch {
+            assert(false);
+        }
+    }
+
     function setSplits(
         uint8 senderAccId,
         uint8 receiverAccId,
