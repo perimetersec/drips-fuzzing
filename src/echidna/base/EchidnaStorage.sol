@@ -15,6 +15,9 @@ contract EchidnaStorage is EchidnaSetup {
     mapping(address => StreamsHistory[]) internal userToStreamsHistory;
     mapping(address => bytes32[]) internal userToStreamsHistoryHashes;
 
+    // Mapping from address to current splits receivers
+    mapping(address => SplitsReceiver[]) internal userToSplitsReceivers;
+
     /**
      * @notice Update the stream receivers for a given account.
      * @param sender Account to update
@@ -72,6 +75,21 @@ contract EchidnaStorage is EchidnaSetup {
     }
 
     /**
+     * @notice Update the splits receivers for a given account.
+     * @param sender Account to update
+     * @param receivers New splits receivers
+     */
+    function updateSplitsReceivers(
+        address sender,
+        SplitsReceiver[] memory receivers
+    ) internal {
+        delete userToSplitsReceivers[sender];
+        for (uint256 i = 0; i < receivers.length; i++) {
+            userToSplitsReceivers[sender].push(receivers[i]);
+        }
+    }
+
+    /**
      * @notice Get the stream receivers for a given account.
      * @param sender Account to get stream receivers for
      * @return Stream receivers for the given account
@@ -105,6 +123,18 @@ contract EchidnaStorage is EchidnaSetup {
         returns (bytes32[] memory)
     {
         return userToStreamsHistoryHashes[sender];
+    }
+
+    /**
+     * @notice Get the splits receivers for a given account.
+     * @param sender Account to get splits receivers for
+     * @return Splits receivers for the given account
+     */
+    function getSplitsReceivers(address sender)
+        internal
+        returns (SplitsReceiver[] memory)
+    {
+        return userToSplitsReceivers[sender];
     }
 
     /**
