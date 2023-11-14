@@ -26,8 +26,8 @@ contract EchidnaSqueezeHelpers is EchidnaBase, EchidnaBasicHelpers {
         return amount;
     }
 
-    function _squeezeWithDefaultHistory(uint8 receiverAccId, uint8 senderAccId)
-        internal
+    function squeezeWithDefaultHistory(uint8 receiverAccId, uint8 senderAccId)
+        public
         returns (uint128)
     {
         return
@@ -39,42 +39,35 @@ contract EchidnaSqueezeHelpers is EchidnaBase, EchidnaBasicHelpers {
             );
     }
 
-    function squeezeWithDefaultHistory(uint8 receiverAccId, uint8 senderAccId)
-        external
-        returns (uint128)
-    {
-        return _squeezeWithDefaultHistory(receiverAccId, senderAccId);
-    }
-
     function squeezeToSelf(uint8 targetAccId) public {
-        _squeezeWithDefaultHistory(targetAccId, targetAccId);
+        squeezeWithDefaultHistory(targetAccId, targetAccId);
     }
 
     function squeezeAllSenders(uint8 targetAccId) public {
-        _squeezeWithDefaultHistory(
+        squeezeWithDefaultHistory(
             targetAccId,
             ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER0]
         );
-        _squeezeWithDefaultHistory(
+        squeezeWithDefaultHistory(
             targetAccId,
             ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER1]
         );
-        _squeezeWithDefaultHistory(
+        squeezeWithDefaultHistory(
             targetAccId,
             ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER2]
         );
-        _squeezeWithDefaultHistory(
+        squeezeWithDefaultHistory(
             targetAccId,
             ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER3]
         );
     }
 
-    function _squeezeWithFuzzedHistory(
+    function squeezeWithFuzzedHistory(
         uint8 receiverAccId,
         uint8 senderAccId,
         uint256 hashIndex,
         bytes32 receiversRandomSeed
-    ) internal returns (uint128) {
+    ) public returns (uint128) {
         address receiver = getAccount(receiverAccId);
         address sender = getAccount(senderAccId);
         uint256 receiverDripsAccId = getDripsAccountId(receiver);
@@ -90,21 +83,6 @@ contract EchidnaSqueezeHelpers is EchidnaBase, EchidnaBasicHelpers {
             );
 
         return _squeeze(receiverAccId, senderAccId, historyHash, history);
-    }
-
-    function squeezeWithFuzzedHistory(
-        uint8 receiverAccId,
-        uint8 senderAccId,
-        uint256 hashIndex,
-        bytes32 receiversRandomSeed
-    ) external returns (uint128) {
-        return
-            _squeezeWithFuzzedHistory(
-                receiverAccId,
-                senderAccId,
-                hashIndex,
-                receiversRandomSeed
-            );
     }
 
     function squeezeAllAndReceiveAndSplitAndCollectToSelf(uint8 targetAccId)

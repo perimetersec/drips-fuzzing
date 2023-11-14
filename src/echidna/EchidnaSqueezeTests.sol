@@ -66,7 +66,7 @@ contract EchidnaSqueezeTests is
         uint128 squeezableBefore = getSqueezableAmount(sender, receiver);
         uint128 splittableBefore = drips.splittable(receiverDripsAccId, token);
 
-        uint128 squeezedAmt = _squeezeWithDefaultHistory(
+        uint128 squeezedAmt = squeezeWithDefaultHistory(
             receiverAccId,
             senderAccId
         );
@@ -94,7 +94,7 @@ contract EchidnaSqueezeTests is
         address sender = getAccount(senderAccId);
 
         uint128 squeezable = getSqueezableAmount(sender, receiver);
-        uint128 squeezed = _squeezeWithDefaultHistory(
+        uint128 squeezed = squeezeWithDefaultHistory(
             receiverAccId,
             senderAccId
         );
@@ -165,14 +165,14 @@ contract EchidnaSqueezeTests is
         address receiver = getAccount(receiverAccId);
         address sender = getAccount(senderAccId);
 
-        uint128 amount0 = _squeezeWithFuzzedHistory(
+        uint128 amount0 = squeezeWithFuzzedHistory(
             receiverAccId,
             senderAccId,
             hashIndex,
             receiversRandomSeed
         );
 
-        uint128 amount1 = _squeezeWithFuzzedHistory(
+        uint128 amount1 = squeezeWithFuzzedHistory(
             receiverAccId,
             senderAccId,
             hashIndex,
