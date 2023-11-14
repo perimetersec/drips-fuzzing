@@ -24,10 +24,10 @@ contract EchidnaBasicHelpers is EchidnaBase {
     ) public {
         address from = getAccount(fromAccId);
 
-        uint128 MIN_AMOUNT = 1000;
-        uint128 MAX_AMOUNT = uint128(token.balanceOf(from));
-        uint128 clampedAmount = MIN_AMOUNT +
-            (amount % (MAX_AMOUNT - MIN_AMOUNT + 1));
+        uint128 min = 1000;
+        uint128 max = uint128(token.balanceOf(from));
+        uint128 clampedAmount = min +
+            (amount % (max - min + 1));
 
         give(fromAccId, toAccId, clampedAmount);
     }
