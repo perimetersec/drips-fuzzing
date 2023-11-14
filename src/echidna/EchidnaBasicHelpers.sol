@@ -2,7 +2,17 @@
 
 import "./base/EchidnaBase.sol";
 
+/**
+ * @title Mixin containing basic helper functions
+ * @author Rappie
+ */
 contract EchidnaBasicHelpers is EchidnaBase {
+    /**
+     * @notice Give balance to an account
+     * @param fromAccId Account id of the giver
+     * @param toAccId Account id of the receiver
+     * @param amount Amount to give
+     */
     function give(
         uint8 fromAccId,
         uint8 toAccId,
@@ -17,6 +27,12 @@ contract EchidnaBasicHelpers is EchidnaBase {
         driver.give(toDripsAccId, token, amount);
     }
 
+    /**
+     * @notice Give a clamped amount to an account
+     * @param fromAccId Account id of the giver
+     * @param toAccId Account id of the receiver
+     * @param amount Amount to give
+     */
     function giveClampedAmount(
         uint8 fromAccId,
         uint8 toAccId,
@@ -31,6 +47,14 @@ contract EchidnaBasicHelpers is EchidnaBase {
         give(fromAccId, toAccId, clampedAmount);
     }
 
+    /**
+     * @notice Receive streams
+     * @param targetAccId Account id of the receiver
+     * @param maxCycles Maximum number of cycles to receive
+     * @return Amount received
+     * @dev Receiving means moving receivable (already streamed) balance to
+     * splittable (available for splitting) balance
+     */
     function receiveStreams(uint8 targetAccId, uint32 maxCycles)
         public
         returns (uint128)
@@ -47,10 +71,26 @@ contract EchidnaBasicHelpers is EchidnaBase {
         return receivedAmt;
     }
 
-    function receiveStreamsAllCycles(uint8 targetAccId) public {
-        receiveStreams(targetAccId, type(uint32).max);
+    /**
+     * @notice Receive streams for all possible cycles
+     * @param targetAccId Account id of the receiver
+     * @return Amount received
+     * @dev We pass maxuint32 to receive all possible cycles
+     */
+    function receiveStreamsAllCycles(uint8 targetAccId)
+        public
+        returns (uint128)
+    {
+        return receiveStreams(targetAccId, type(uint32).max);
     }
 
+    /**
+     * @notice Split received funds
+     * @param targetAccId Account to have their funds split
+     * @return Amount collectable and amount split
+     * @dev Splitting means moving splittable (available for splitting) balance
+     * to collectable (available for collecting) balance
+     */
     function split(uint8 targetAccId) public returns (uint128, uint128) {
         address target = getAccount(targetAccId);
         uint256 targetDripsAccId = getDripsAccountId(target);
@@ -64,6 +104,14 @@ contract EchidnaBasicHelpers is EchidnaBase {
         return (collectableAmt, splitAmt);
     }
 
+    /**
+     * @notice Collect funds
+     * @param fromAccId Account id of the giver
+     * @param toAccId Account id of the receiver
+     * @return Amount collected
+     * @dev Collecting means moving withdrawing collectable funds to actual
+     * balance of the erc20 token
+     */
     function collect(uint8 fromAccId, uint8 toAccId) public returns (uint128) {
         address from = getAccount(fromAccId);
         address to = getAccount(toAccId);
@@ -74,15 +122,29 @@ contract EchidnaBasicHelpers is EchidnaBase {
         return collected;
     }
 
+    /**
+     * @notice Collect funds to self
+     * @param targetAccId Target account
+     */
     function collectToSelf(uint8 targetAccId) public {
         collect(targetAccId, targetAccId);
     }
 
+    /**
+     * @notice Split and collect funds to self
+     * @param targetAccId Target account
+     * @dev Extra helper that narrows the search space for the fuzzer
+     */
     function splitAndCollectToSelf(uint8 targetAccId) public {
         split(targetAccId);
         collectToSelf(targetAccId);
     }
 
+    /**
+     * @notice Receive streams, split and collect funds to self
+     * @param targetAccId Target account
+     * @dev Extra helper that narrows the search space for the fuzzer
+     */
     function receiveStreamsSplitAndCollectToSelf(uint8 targetAccId) public {
         receiveStreamsAllCycles(targetAccId);
         splitAndCollectToSelf(targetAccId);
