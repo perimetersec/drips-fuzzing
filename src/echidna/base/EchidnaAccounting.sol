@@ -72,7 +72,6 @@ contract EchidnaAccounting is EchidnaStorage {
             balance = _balance;
         } catch {
             // this should not happen, so put an assert here to be sure
-            Debugger.log("drips.balanceAt() failed");
             assert(false);
         }
 

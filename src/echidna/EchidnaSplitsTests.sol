@@ -33,13 +33,6 @@ contract EchidnaSplitsTests is
 
         uint128 splittableAfter = drips.splittable(targetDripsAccId, token);
 
-        Debugger.log("splitToSelfWeight", splitToSelfWeight);
-        Debugger.log("splitToSelfAmount", splitToSelfAmount);
-        Debugger.log("collectableAmt", collectableAmt);
-        Debugger.log("splitAmt", splitAmt);
-        Debugger.log("splittableBefore", splittableBefore);
-        Debugger.log("splittableAfter", splittableAfter);
-
         // sanity check
         assert((splitAmt + collectableAmt) <= splittableBefore);
 
@@ -120,13 +113,6 @@ contract EchidnaSplitsTests is
         }
 
         for (uint256 i = 0; i < receivers.length; i++) {
-            Debugger.log("i", i);
-            Debugger.log("weights[i]", weights[i]);
-            Debugger.log("amounts[i]", amounts[i]);
-            Debugger.log("splittableBefore[i]", splittableBefore[i]);
-            Debugger.log("splittableAfter[i]", splittableAfter[i]);
-            Debugger.log("--------------------");
-
             // calculate expected amount after the split
             uint128 expectedAfter;
             if (receivers[i].accountId != targetDripsAccId) {
