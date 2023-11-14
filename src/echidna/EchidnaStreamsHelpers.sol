@@ -6,12 +6,6 @@ contract EchidnaStreamsHelpers is EchidnaBase {
     uint32 internal maxEndHint1;
     uint32 internal maxEndHint2;
 
-    function setMaxEndHints(uint32 _maxEndHint1, uint32 _maxEndHint2) public {
-        require(TOGGLE_MAXENDHINTS_ENABLED);
-        maxEndHint1 = _maxEndHint1;
-        maxEndHint2 = _maxEndHint2;
-    }
-
     function _setStreams(
         address from,
         StreamReceiver[] memory currReceivers,
@@ -251,6 +245,12 @@ contract EchidnaStreamsHelpers is EchidnaBase {
             type(int128).min,
             getStreamReceivers(target)
         );
+    }
+
+    function setMaxEndHints(uint32 _maxEndHint1, uint32 _maxEndHint2) public {
+        require(TOGGLE_MAXENDHINTS_ENABLED);
+        maxEndHint1 = _maxEndHint1;
+        maxEndHint2 = _maxEndHint2;
     }
 
     function clampAmountPerSec(uint160 amountPerSec)
