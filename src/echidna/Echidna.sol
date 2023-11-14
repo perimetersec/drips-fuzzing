@@ -5,7 +5,8 @@ import "./EchidnaTestInvariant.sol";
 import "./EchidnaTest.sol";
 import "./EchidnaSplitsHelpers.sol";
 import "./EchidnaSplitsTests.sol";
-import "./EchidnaStreams.sol";
+import "./EchidnaStreamsHelpers.sol";
+import "./EchidnaStreamsTests.sol";
 import "./EchidnaSqueeze.sol";
 
 contract Echidna is
@@ -13,6 +14,7 @@ contract Echidna is
     EchidnaTest,
     // EchidnaSplitsHelpers,
     EchidnaSplitsTests,
-    EchidnaStreams,
+    // EchidnaStreamsHelpers,
+    EchidnaStreamsTests,
     EchidnaSqueeze
 {}

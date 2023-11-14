@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 
 import "./EchidnaSplitsHelpers.sol";
-import "./EchidnaStreams.sol";
+import "./EchidnaStreamsHelpers.sol";
 
-contract EchidnaSqueeze is EchidnaSplitsHelpers, EchidnaStreams {
+contract EchidnaSqueeze is EchidnaSplitsHelpers, EchidnaStreamsHelpers {
     function testWithdrawAllTokensShouldNotRevert() public heavy {
         try EchidnaSqueeze(address(this)).testWithdrawAllTokens() {} catch {
             assert(false);
