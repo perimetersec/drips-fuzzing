@@ -5,7 +5,7 @@ import "./base/EchidnaBase.sol";
 contract EchidnaInvariantTests is EchidnaBase {
     ///@notice Withdrawing directly from Drips should always fail
     function invariantWithdrawShouldAlwaysFail(uint256 amount) public {
-        require(amount > 0);
+        require(amount > 0, "withdraw amount must be > 0");
 
         try drips.withdraw(token, address(this), amount) {
             assert(false);
@@ -19,7 +19,7 @@ contract EchidnaInvariantTests is EchidnaBase {
         address target = getAccount(targetAccId);
 
         StreamReceiver[] memory receivers = getStreamReceivers(target);
-        require(receivers.length > 0);
+        require(receivers.length > 0, "no receivers");
 
         // shouldnt this be without the +1 ?
         index = index % (receivers.length + 1);
@@ -47,11 +47,11 @@ contract EchidnaInvariantTests is EchidnaBase {
         uint32 firstCycle = getCycleFromTimestamp(STARTING_TIMESTAMP);
         uint32 lastCycle = getCycleFromTimestamp(maxEnd);
 
-        require(maxEnd > 0);
-        require(firstCycle != lastCycle);
+        require(maxEnd > 0, "no cycles");
+        require(firstCycle != lastCycle, "only one cycle");
 
         // limit amount of cycles for gas & memory savings
-        require(lastCycle - firstCycle < 1000);
+        require(lastCycle - firstCycle < 1000, "too many cycles");
 
         int256 sumAmtDelta = 0;
 
