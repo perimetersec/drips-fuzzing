@@ -1,10 +1,12 @@
 // SPDX-License-Identifier: MIT
 
+import "./EchidnaBasicHelpers.sol";
 import "./EchidnaSplitsHelpers.sol";
 import "./EchidnaStreamsHelpers.sol";
 import "./EchidnaSqueezeHelpers.sol";
 
 contract EchidnaSqueezeTests is
+    EchidnaBasicHelpers,
     EchidnaSplitsHelpers,
     EchidnaStreamsHelpers,
     EchidnaSqueezeHelpers

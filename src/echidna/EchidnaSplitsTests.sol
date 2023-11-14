@@ -1,9 +1,14 @@
 // SPDX-License-Identifier: MIT
 
 import "./base/EchidnaBase.sol";
+import "./EchidnaBasicHelpers.sol";
 import "./EchidnaSplitsHelpers.sol";
 
-contract EchidnaSplitsTests is EchidnaBase, EchidnaSplitsHelpers {
+contract EchidnaSplitsTests is
+    EchidnaBase,
+    EchidnaBasicHelpers,
+    EchidnaSplitsHelpers
+{
     function testSplittableAfterSplit(uint8 targetAccId) public {
         address target = getAccount(targetAccId);
         uint256 targetDripsAccId = getDripsAccountId(target);
@@ -175,7 +180,7 @@ contract EchidnaSplitsTests is EchidnaBase, EchidnaSplitsHelpers {
         address target = getAccount(targetAccId);
         uint256 targetDripsAccId = getDripsAccountId(target);
 
-        try EchidnaBase(address(this)).split(targetAccId) {} catch {
+        try EchidnaBasicHelpers(address(this)).split(targetAccId) {} catch {
             assert(false);
         }
     }

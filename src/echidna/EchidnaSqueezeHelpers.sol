@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: MIT
 
 import "./base/EchidnaBase.sol";
+import "./EchidnaBasicHelpers.sol";
 
-contract EchidnaSqueezeHelpers is EchidnaBase {
+contract EchidnaSqueezeHelpers is EchidnaBase, EchidnaBasicHelpers {
     function _squeeze(
         uint8 receiverAccId,
         uint8 senderAccId,

@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: MIT
 
 import "./base/EchidnaBase.sol";
+import "./EchidnaBasicHelpers.sol";
 
-contract EchidnaTest is EchidnaBase {
+contract EchidnaBasicTests is EchidnaBase, EchidnaBasicHelpers {
     ///@notice Giving an amount `<=` token balance should never revert
     function testGiveShouldNotRevert(
         uint8 fromAccId,

@@ -2,7 +2,7 @@
 
 import "./base/EchidnaBase.sol";
 
-contract EchidnaTestInvariant is EchidnaBase {
+contract EchidnaInvariantTests is EchidnaBase {
     ///@notice Withdrawing directly from Drips should always fail
     function invariantWithdrawShouldAlwaysFail(uint256 amount) public {
         require(amount > 0);
