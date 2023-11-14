@@ -4,100 +4,6 @@ import "./base/EchidnaBase.sol";
 import "./EchidnaStreamsHelpers.sol";
 
 contract EchidnaStreamsTests is EchidnaBase, EchidnaStreamsHelpers {
-    ///@notice Setting streams with sane defaults should not revert
-    function testSetStreamsShouldNotRevert(
-        uint8 fromAccId,
-        uint8 toAccId,
-        uint160 amountPerSec,
-        uint32 startTime,
-        uint32 duration,
-        int128 balanceDelta
-    ) public {
-        try
-            EchidnaStreamsHelpers(address(this)).setStreamsWithClamping(
-                fromAccId,
-                toAccId,
-                amountPerSec,
-                startTime,
-                duration,
-                balanceDelta
-            )
-        {} catch {
-            assert(false);
-        }
-    }
-
-    ///@notice Adding streams with sane defaults should not revert
-    function testAddStreamShouldNotRevert(
-        uint8 fromAccId,
-        uint8 toAccId,
-        uint160 amountPerSec,
-        uint32 startTime,
-        uint32 duration,
-        int128 balanceDelta
-    ) public {
-        try
-            EchidnaStreamsHelpers(address(this)).addStreamWithClamping(
-                fromAccId,
-                toAccId,
-                amountPerSec,
-                startTime,
-                duration,
-                balanceDelta
-            )
-        {} catch (bytes memory reason) {
-            bytes4 errorSelector = bytes4(reason);
-            if (errorSelector == EchidnaStorage.DuplicateError.selector) {
-                // ignore this case, it means we tried to add a duplicate stream
-            } else {
-                assert(false);
-            }
-        }
-    }
-
-    ///@notice Removing streams should not revert
-    function testRemoveStreamShouldNotRevert(
-        uint8 targetAccId,
-        uint256 indexSeed
-    ) public {
-        address target = getAccount(targetAccId);
-        require(getStreamReceivers(target).length > 0);
-
-        try
-            EchidnaStreamsHelpers(address(this)).removeStream(targetAccId, indexSeed)
-        {} catch {
-            assert(false);
-        }
-    }
-
-    ///@notice Updating stream balance with sane defaults should not revert
-    function testSetStreamBalanceShouldNotRevert(
-        uint8 targetAccId,
-        int128 balanceDelta
-    ) public {
-        try
-            EchidnaStreamsHelpers(address(this)).setStreamBalanceWithClamping(
-                targetAccId,
-                balanceDelta
-            )
-        {} catch {
-            assert(false);
-        }
-    }
-
-    ///@notice Withdrawing all stream balance should not revert
-    function testSetStreamBalanceWithdrawAllShouldNotRevert(uint8 targetAccId)
-        public
-    {
-        try
-            EchidnaStreamsHelpers(address(this)).setStreamBalanceWithdrawAll(
-                targetAccId
-            )
-        {} catch {
-            assert(false);
-        }
-    }
-
     ///@notice Test internal accounting after updating stream balance
     function testSetStreamBalance(uint8 targetAccId, int128 balanceDelta)
         public
@@ -219,5 +125,102 @@ contract EchidnaStreamsTests is EchidnaBase, EchidnaStreamsHelpers {
         uint128 expectedReceivedChange = receivableAfter - receivableBaseline;
 
         assert(expectedBalanceChange == expectedReceivedChange);
+    }
+
+    ///@notice Setting streams with sane defaults should not revert
+    function testSetStreamsShouldNotRevert(
+        uint8 fromAccId,
+        uint8 toAccId,
+        uint160 amountPerSec,
+        uint32 startTime,
+        uint32 duration,
+        int128 balanceDelta
+    ) public {
+        try
+            EchidnaStreamsHelpers(address(this)).setStreamsWithClamping(
+                fromAccId,
+                toAccId,
+                amountPerSec,
+                startTime,
+                duration,
+                balanceDelta
+            )
+        {} catch {
+            assert(false);
+        }
+    }
+
+    ///@notice Adding streams with sane defaults should not revert
+    function testAddStreamShouldNotRevert(
+        uint8 fromAccId,
+        uint8 toAccId,
+        uint160 amountPerSec,
+        uint32 startTime,
+        uint32 duration,
+        int128 balanceDelta
+    ) public {
+        try
+            EchidnaStreamsHelpers(address(this)).addStreamWithClamping(
+                fromAccId,
+                toAccId,
+                amountPerSec,
+                startTime,
+                duration,
+                balanceDelta
+            )
+        {} catch (bytes memory reason) {
+            bytes4 errorSelector = bytes4(reason);
+            if (errorSelector == EchidnaStorage.DuplicateError.selector) {
+                // ignore this case, it means we tried to add a duplicate stream
+            } else {
+                assert(false);
+            }
+        }
+    }
+
+    ///@notice Removing streams should not revert
+    function testRemoveStreamShouldNotRevert(
+        uint8 targetAccId,
+        uint256 indexSeed
+    ) public {
+        address target = getAccount(targetAccId);
+        require(getStreamReceivers(target).length > 0);
+
+        try
+            EchidnaStreamsHelpers(address(this)).removeStream(
+                targetAccId,
+                indexSeed
+            )
+        {} catch {
+            assert(false);
+        }
+    }
+
+    ///@notice Updating stream balance with sane defaults should not revert
+    function testSetStreamBalanceShouldNotRevert(
+        uint8 targetAccId,
+        int128 balanceDelta
+    ) public {
+        try
+            EchidnaStreamsHelpers(address(this)).setStreamBalanceWithClamping(
+                targetAccId,
+                balanceDelta
+            )
+        {} catch {
+            assert(false);
+        }
+    }
+
+    ///@notice Withdrawing all stream balance should not revert
+    function testSetStreamBalanceWithdrawAllShouldNotRevert(uint8 targetAccId)
+        public
+    {
+        try
+            EchidnaStreamsHelpers(address(this)).setStreamBalanceWithdrawAll(
+                targetAccId
+            )
+        {} catch {
+            assert(false);
+        }
     }
 }
