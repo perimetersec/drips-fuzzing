@@ -11,51 +11,6 @@ contract EchidnaSqueezeTests is
     EchidnaStreamsHelpers,
     EchidnaSqueezeHelpers
 {
-    function testWithdrawAllTokensShouldNotRevert() public heavy {
-        try EchidnaSqueezeTests(address(this)).testWithdrawAllTokens() {} catch {
-            assert(false);
-        }
-    }
-
-    ///@notice Squeezing should never revert
-    function testSqueezeWithDefaultHistoryShouldNotRevert(
-        uint8 receiverAccId,
-        uint8 senderAccId
-    ) public {
-        try
-            EchidnaSqueezeHelpers(address(this)).squeezeWithDefaultHistory(
-                receiverAccId,
-                senderAccId
-            )
-        {} catch {
-            assert(false);
-        }
-    }
-
-    function testSqueezeWithFuzzedHistoryShouldNotRevert(
-        uint8 receiverAccId,
-        uint8 senderAccId,
-        uint256 hashIndex,
-        bytes32 receiversRandomSeed
-    ) public {
-        address sender = getAccount(senderAccId);
-        require(
-            getStreamsHistory(sender).length >= 2,
-            "need at least 2 history entries"
-        );
-
-        try
-            EchidnaSqueezeHelpers(address(this)).squeezeWithFuzzedHistory(
-                receiverAccId,
-                senderAccId,
-                hashIndex,
-                receiversRandomSeed
-            )
-        {} catch {
-            assert(false);
-        }
-    }
-
     ///@notice Test internal accounting after squeezing
     function testSqueeze(uint8 receiverAccId, uint8 senderAccId) public {
         address receiver = getAccount(receiverAccId);
@@ -269,5 +224,52 @@ contract EchidnaSqueezeTests is
 
         assert(dripsBalance == 0);
         assert(totalUserBalance == STARTING_BALANCE * 4);
+    }
+
+    ///@notice Squeezing should never revert
+    function testSqueezeWithDefaultHistoryShouldNotRevert(
+        uint8 receiverAccId,
+        uint8 senderAccId
+    ) public {
+        try
+            EchidnaSqueezeHelpers(address(this)).squeezeWithDefaultHistory(
+                receiverAccId,
+                senderAccId
+            )
+        {} catch {
+            assert(false);
+        }
+    }
+
+    function testSqueezeWithFuzzedHistoryShouldNotRevert(
+        uint8 receiverAccId,
+        uint8 senderAccId,
+        uint256 hashIndex,
+        bytes32 receiversRandomSeed
+    ) public {
+        address sender = getAccount(senderAccId);
+        require(
+            getStreamsHistory(sender).length >= 2,
+            "need at least 2 history entries"
+        );
+
+        try
+            EchidnaSqueezeHelpers(address(this)).squeezeWithFuzzedHistory(
+                receiverAccId,
+                senderAccId,
+                hashIndex,
+                receiversRandomSeed
+            )
+        {} catch {
+            assert(false);
+        }
+    }
+
+    function testWithdrawAllTokensShouldNotRevert() public heavy {
+        try
+            EchidnaSqueezeTests(address(this)).testWithdrawAllTokens()
+        {} catch {
+            assert(false);
+        }
     }
 }
