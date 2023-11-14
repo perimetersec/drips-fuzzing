@@ -195,6 +195,27 @@ contract EchidnaSplits is EchidnaBase {
         }
     }
 
+    function testAddSplitsShouldNotRevert(
+        uint8 senderAccId,
+        uint8 receiverAccId,
+        uint32 weight
+    ) public {
+        try
+            EchidnaSplits(address(this)).addSplitsReceiverWithClamping(
+                senderAccId,
+                receiverAccId,
+                weight
+            )
+        {} catch (bytes memory reason) {
+            bytes4 errorSelector = bytes4(reason);
+            if (errorSelector == EchidnaStorage.DuplicateError.selector) {
+                // ignore this case, it means we tried to add a duplicate stream
+            } else {
+                assert(false);
+            }
+        }
+    }
+
     function _setSplits(
         uint8 senderAccId,
         SplitsReceiver[] memory unsortedReceivers
@@ -235,7 +256,7 @@ contract EchidnaSplits is EchidnaBase {
         uint8 receiverAccId,
         uint32 weight
     ) public {
-        weight = clampSplitWeight(weight);
+        weight = clampSplitWeight(weight, 0); // 0 existing weights
         setSplits(senderAccId, receiverAccId, weight);
     }
 
@@ -272,7 +293,21 @@ contract EchidnaSplits is EchidnaBase {
         uint8 receiverAccId,
         uint32 weight
     ) public {
-        weight = clampSplitWeight(weight);
+        address sender = getAccount(senderAccId);
+
+        // sum all the existing weights
+        uint32 existingWeights;
+        SplitsReceiver[] memory receivers = getSplitsReceivers(sender);
+        for (uint256 i = 0; i < receivers.length; i++) {
+            existingWeights += receivers[i].weight;
+        }
+
+        // we can't add a receiver if it makes the total weight go over the
+        // maximum allowed
+        if (existingWeights < drips.TOTAL_SPLITS_WEIGHT()) return;
+
+        weight = clampSplitWeight(weight, existingWeights);
+
         addSplitsReceiver(senderAccId, receiverAccId, weight);
     }
 
@@ -281,7 +316,13 @@ contract EchidnaSplits is EchidnaBase {
         _setSplits(targetAccId, receivers);
     }
 
-    function clampSplitWeight(uint32 weight) public view returns (uint32) {
-        return 1 + (weight % (drips.TOTAL_SPLITS_WEIGHT() - 1));
+    function clampSplitWeight(uint32 weight, uint32 existingWeights)
+        public
+        view
+        returns (uint32)
+    {
+        uint32 min = 1;
+        uint32 max = drips.TOTAL_SPLITS_WEIGHT();
+        return min + (weight % ((max + 1) - existingWeights - min));
     }
 }
