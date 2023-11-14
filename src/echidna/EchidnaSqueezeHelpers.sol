@@ -39,29 +39,6 @@ contract EchidnaSqueezeHelpers is EchidnaBase, EchidnaBasicHelpers {
             );
     }
 
-    function squeezeToSelf(uint8 targetAccId) public {
-        squeezeWithDefaultHistory(targetAccId, targetAccId);
-    }
-
-    function squeezeAllSenders(uint8 targetAccId) public {
-        squeezeWithDefaultHistory(
-            targetAccId,
-            ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER0]
-        );
-        squeezeWithDefaultHistory(
-            targetAccId,
-            ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER1]
-        );
-        squeezeWithDefaultHistory(
-            targetAccId,
-            ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER2]
-        );
-        squeezeWithDefaultHistory(
-            targetAccId,
-            ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER3]
-        );
-    }
-
     function squeezeWithFuzzedHistory(
         uint8 receiverAccId,
         uint8 senderAccId,
@@ -83,6 +60,29 @@ contract EchidnaSqueezeHelpers is EchidnaBase, EchidnaBasicHelpers {
             );
 
         return _squeeze(receiverAccId, senderAccId, historyHash, history);
+    }
+
+    function squeezeToSelf(uint8 targetAccId) public {
+        squeezeWithDefaultHistory(targetAccId, targetAccId);
+    }
+
+    function squeezeAllSenders(uint8 targetAccId) public {
+        squeezeWithDefaultHistory(
+            targetAccId,
+            ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER0]
+        );
+        squeezeWithDefaultHistory(
+            targetAccId,
+            ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER1]
+        );
+        squeezeWithDefaultHistory(
+            targetAccId,
+            ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER2]
+        );
+        squeezeWithDefaultHistory(
+            targetAccId,
+            ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER3]
+        );
     }
 
     function squeezeAllAndReceiveAndSplitAndCollectToSelf(uint8 targetAccId)
