@@ -77,7 +77,7 @@ contract EchidnaStreamsHelpers is EchidnaBase {
         uint32 startTime,
         uint32 duration,
         int128 balanceDelta
-    ) external returns (int128) {
+    ) public returns (int128) {
         address from = getAccount(fromAccId);
         address to = getAccount(toAccId);
 
@@ -137,14 +137,14 @@ contract EchidnaStreamsHelpers is EchidnaBase {
         return realBalanceDelta;
     }
 
-    function _addStreamWithClamping(
+    function addStreamWithClamping(
         uint8 fromAccId,
         uint8 toAccId,
         uint160 amountPerSec,
         uint32 startTime,
         uint32 duration,
         int128 balanceDelta
-    ) internal returns (int128) {
+    ) public returns (int128) {
         address from = getAccount(fromAccId);
 
         amountPerSec = clampAmountPerSec(amountPerSec);
@@ -154,25 +154,6 @@ contract EchidnaStreamsHelpers is EchidnaBase {
 
         return
             addStream(
-                fromAccId,
-                toAccId,
-                amountPerSec,
-                startTime,
-                duration,
-                balanceDelta
-            );
-    }
-
-    function addStreamWithClamping(
-        uint8 fromAccId,
-        uint8 toAccId,
-        uint160 amountPerSec,
-        uint32 startTime,
-        uint32 duration,
-        int128 balanceDelta
-    ) external returns (int128) {
-        return
-            _addStreamWithClamping(
                 fromAccId,
                 toAccId,
                 amountPerSec,
@@ -211,7 +192,7 @@ contract EchidnaStreamsHelpers is EchidnaBase {
         hevm.warp(block.timestamp + 1);
     }
 
-    function _removeStream(uint8 targetAccId, uint256 indexSeed) internal {
+    function removeStream(uint8 targetAccId, uint256 indexSeed) public {
         address target = getAccount(targetAccId);
 
         StreamReceiver[] memory oldReceivers = getStreamReceivers(target);
@@ -232,10 +213,6 @@ contract EchidnaStreamsHelpers is EchidnaBase {
         _setStreams(target, oldReceivers, 0, newReceivers);
     }
 
-    function removeStream(uint8 targetAccId, uint256 indexSeed) external {
-        _removeStream(targetAccId, indexSeed);
-    }
-
     function setStreamBalance(uint8 targetAccId, int128 balanceDelta)
         public
         returns (int128)
@@ -252,24 +229,17 @@ contract EchidnaStreamsHelpers is EchidnaBase {
         return realBalanceDelta;
     }
 
-    function _setStreamBalanceWithClamping(
+    function setStreamBalanceWithClamping(
         uint8 targetAccId,
         int128 balanceDelta
-    ) internal {
+    ) public {
         address target = getAccount(targetAccId);
         balanceDelta = clampBalanceDelta(balanceDelta, target);
         setStreamBalance(targetAccId, balanceDelta);
     }
 
-    function setStreamBalanceWithClamping(
-        uint8 targetAccId,
-        int128 balanceDelta
-    ) external {
-        _setStreamBalanceWithClamping(targetAccId, balanceDelta);
-    }
-
-    function _setStreamBalanceWithdrawAll(uint8 targetAccId)
-        internal
+    function setStreamBalanceWithdrawAll(uint8 targetAccId)
+        public
         returns (int128)
     {
         address target = getAccount(targetAccId);
@@ -281,13 +251,6 @@ contract EchidnaStreamsHelpers is EchidnaBase {
             type(int128).min,
             getStreamReceivers(target)
         );
-    }
-
-    function setStreamBalanceWithdrawAll(uint8 targetAccId)
-        external
-        returns (int128)
-    {
-        return _setStreamBalanceWithdrawAll(targetAccId);
     }
 
     function clampAmountPerSec(uint160 amountPerSec)

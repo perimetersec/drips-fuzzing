@@ -108,10 +108,10 @@ contract EchidnaSqueezeTests is
         uint128 squeezable = getTotalSqueezableAmountForUser(target);
         uint128 receivableBefore = getReceivableAmountForUser(target);
 
-        _setStreamBalanceWithdrawAll(ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER0]);
-        _setStreamBalanceWithdrawAll(ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER1]);
-        _setStreamBalanceWithdrawAll(ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER2]);
-        _setStreamBalanceWithdrawAll(ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER3]);
+        setStreamBalanceWithdrawAll(ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER0]);
+        setStreamBalanceWithdrawAll(ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER1]);
+        setStreamBalanceWithdrawAll(ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER2]);
+        setStreamBalanceWithdrawAll(ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER3]);
 
         uint256 currentTimestamp = block.timestamp;
         uint256 futureTimestamp = getCurrentCycleEnd() + 1;
@@ -218,7 +218,7 @@ contract EchidnaSqueezeTests is
 
         uint128 squeezableBefore = getSqueezableAmount(sender, receiver);
 
-        _setStreamBalanceWithdrawAll(senderAccId);
+        setStreamBalanceWithdrawAll(senderAccId);
 
         uint128 squeezableAfter = getSqueezableAmount(sender, receiver);
 
@@ -251,10 +251,10 @@ contract EchidnaSqueezeTests is
             ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER3]
         );
 
-        _setStreamBalanceWithdrawAll(ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER0]);
-        _setStreamBalanceWithdrawAll(ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER1]);
-        _setStreamBalanceWithdrawAll(ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER2]);
-        _setStreamBalanceWithdrawAll(ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER3]);
+        setStreamBalanceWithdrawAll(ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER0]);
+        setStreamBalanceWithdrawAll(ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER1]);
+        setStreamBalanceWithdrawAll(ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER2]);
+        setStreamBalanceWithdrawAll(ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER3]);
 
         uint256 dripsBalance = token.balanceOf(address(drips));
         uint256 user0Balance = token.balanceOf(ADDRESS_USER0);
