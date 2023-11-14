@@ -1,8 +1,8 @@
 ## Todo
-- Tests/Invariants
-  - Splitting
-- Helpers
-  - Improve corpus quality by incentivizing Echidna to make large lists of stream receivers
+- Mutation testing on Splits.sol
+- Restructuring / Refactoring now Splits is part of the suite
+- Documentation
+- Long fuzzing run
 
 ## Done
 - Get insight into coverage
@@ -20,6 +20,7 @@
   - Make heavy/destructive functions togglable
 - Tests/Invariants
   - Test squeezing with fuzzed history lists
+  - Splitting
 
 ## Planning (conceptual)
 - Max coverage
@@ -34,6 +35,7 @@
 - Incorporate fuzzing in Drips repo
 	- Pull request + docs/guide
 - Helpers
+    - Improve corpus quality by incentivizing Echidna to make large lists of stream receivers
 	- Adding large amounts of StreamReceivers (100s or 1000s)
 - Tests
 	- Check if `balanceAt` reverts for timestamps before the last update
