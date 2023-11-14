@@ -52,7 +52,7 @@ contract EchidnaBasicHelpers is EchidnaBase {
         receiveStreams(targetAccId, type(uint32).max);
     }
 
-    function _split(uint8 targetAccId) internal returns (uint128, uint128) {
+    function split(uint8 targetAccId) public returns (uint128, uint128) {
         address target = getAccount(targetAccId);
         uint256 targetDripsAccId = getDripsAccountId(target);
 
@@ -63,10 +63,6 @@ contract EchidnaBasicHelpers is EchidnaBase {
         );
 
         return (collectableAmt, splitAmt);
-    }
-
-    function split(uint8 targetAccId) external returns (uint128, uint128) {
-        return _split(targetAccId);
     }
 
     function collect(uint8 fromAccId, uint8 toAccId) public returns (uint128) {
@@ -84,7 +80,7 @@ contract EchidnaBasicHelpers is EchidnaBase {
     }
 
     function splitAndCollectToSelf(uint8 targetAccId) public {
-        _split(targetAccId);
+        split(targetAccId);
         collectToSelf(targetAccId);
     }
 

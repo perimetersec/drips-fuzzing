@@ -29,7 +29,7 @@ contract EchidnaSplitsTests is
             (splittableBefore * splitToSelfWeight) / drips.TOTAL_SPLITS_WEIGHT()
         );
 
-        (uint128 collectableAmt, uint128 splitAmt) = _split(targetAccId);
+        (uint128 collectableAmt, uint128 splitAmt) = split(targetAccId);
 
         uint128 splittableAfter = drips.splittable(targetDripsAccId, token);
 
@@ -68,7 +68,7 @@ contract EchidnaSplitsTests is
         uint256 targetDripsAccId = getDripsAccountId(target);
 
         uint128 colBalBefore = drips.collectable(targetDripsAccId, token);
-        (uint128 collectableAmt, ) = _split(targetAccId);
+        (uint128 collectableAmt, ) = split(targetAccId);
         uint128 colBalAfter = drips.collectable(targetDripsAccId, token);
 
         assert(colBalAfter == colBalBefore + collectableAmt);
@@ -102,7 +102,7 @@ contract EchidnaSplitsTests is
         }
 
         // split
-        (uint128 collectableAmt, uint128 splitAmt) = _split(targetAccId);
+        (uint128 collectableAmt, uint128 splitAmt) = split(targetAccId);
 
         // store splittable after
         for (uint256 i = 0; i < receivers.length; i++) {
@@ -153,7 +153,7 @@ contract EchidnaSplitsTests is
             splittable
         );
 
-        (uint128 collectableAmtActual, uint128 splitAmtActual) = _split(
+        (uint128 collectableAmtActual, uint128 splitAmtActual) = split(
             targetAccId
         );
 
