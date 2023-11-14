@@ -304,7 +304,7 @@ contract EchidnaSplits is EchidnaBase {
 
         // we can't add a receiver if it makes the total weight go over the
         // maximum allowed
-        if (existingWeights < drips.TOTAL_SPLITS_WEIGHT()) return;
+        if (existingWeights >= drips.TOTAL_SPLITS_WEIGHT()) return;
 
         weight = clampSplitWeight(weight, existingWeights);
 
