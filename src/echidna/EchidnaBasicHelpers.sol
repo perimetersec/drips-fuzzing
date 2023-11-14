@@ -27,7 +27,6 @@ contract EchidnaBasicHelpers is EchidnaBase {
         uint128 min = 1000;
         uint128 max = uint128(token.balanceOf(from));
         uint128 clampedAmount = min + (amount % (max - min + 1));
-            (amount % (max - min + 1));
 
         give(fromAccId, toAccId, clampedAmount);
     }
