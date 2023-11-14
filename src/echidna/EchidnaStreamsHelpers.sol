@@ -70,14 +70,14 @@ contract EchidnaStreamsHelpers is EchidnaBase {
         return realBalanceDelta;
     }
 
-    function _setStreamsWithClamping(
+    function setStreamsWithClamping(
         uint8 fromAccId,
         uint8 toAccId,
         uint160 amountPerSec,
         uint32 startTime,
         uint32 duration,
         int128 balanceDelta
-    ) internal returns (int128) {
+    ) external returns (int128) {
         address from = getAccount(fromAccId);
         address to = getAccount(toAccId);
 
@@ -94,25 +94,6 @@ contract EchidnaStreamsHelpers is EchidnaBase {
             duration,
             balanceDelta
         );
-    }
-
-    function setStreamsWithClamping(
-        uint8 fromAccId,
-        uint8 toAccId,
-        uint160 amountPerSec,
-        uint32 startTime,
-        uint32 duration,
-        int128 balanceDelta
-    ) external returns (int128) {
-        return
-            _setStreamsWithClamping(
-                fromAccId,
-                toAccId,
-                amountPerSec,
-                startTime,
-                duration,
-                balanceDelta
-            );
     }
 
     function addStream(
