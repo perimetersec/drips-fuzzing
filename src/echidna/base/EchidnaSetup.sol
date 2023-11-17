@@ -3,6 +3,10 @@
 import "../tools/IHevm.sol";
 import "./EchidnaConfig.sol";
 
+/**
+ * @title Mixin containing the deployment and setup
+ * @author Rappie
+ */
 contract EchidnaSetup is EchidnaConfig {
     IHevm hevm = IHevm(0x7109709ECfa91a80626fF3989D68f67F5b1DD12D);
 
@@ -11,7 +15,7 @@ contract EchidnaSetup is EchidnaConfig {
     AddressDriverEchidna driver;
 
     constructor() EchidnaConfig() {
-        // token
+        // Deploy ERC20 token
         token = new ERC20PresetFixedSupply(
             "Test Token",
             "TEST",
@@ -19,11 +23,11 @@ contract EchidnaSetup is EchidnaConfig {
             address(this)
         );
 
-        // drips
+        // Deploy Drips
         drips = new DripsEchidna(SECONDS_PER_CYCLE);
         drips.unpause_noModifiers();
 
-        // address driver
+        // Deploy AddressDriver
         uint32 driverId = drips.registerDriver(address(this));
         driver = new AddressDriverEchidna(
             drips,
@@ -33,7 +37,7 @@ contract EchidnaSetup is EchidnaConfig {
         driver.unpause_noModifiers();
         drips.updateDriverAddress(driverId, address(driver));
 
-        // set up token balances
+        // Set up token balances
         token.transfer(ADDRESS_USER0, STARTING_BALANCE);
         hevm.prank(ADDRESS_USER0);
         token.approve(address(driver), type(uint256).max);
@@ -47,6 +51,7 @@ contract EchidnaSetup is EchidnaConfig {
         hevm.prank(ADDRESS_USER3);
         token.approve(address(driver), type(uint256).max);
 
+        // Store starting timestamp
         STARTING_TIMESTAMP = block.timestamp;
     }
 }
