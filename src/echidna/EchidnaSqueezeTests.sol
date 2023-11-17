@@ -5,13 +5,21 @@ import "./EchidnaSplitsHelpers.sol";
 import "./EchidnaStreamsHelpers.sol";
 import "./EchidnaSqueezeHelpers.sol";
 
+/**
+ * @title Mixin containing tests for squeezing
+ * @author Rappie
+ */
 contract EchidnaSqueezeTests is
     EchidnaBasicHelpers,
     EchidnaSplitsHelpers,
     EchidnaStreamsHelpers,
     EchidnaSqueezeHelpers
 {
-    ///@notice Test internal accounting after squeezing
+    /**
+     * @notice Test internal accounting after squeezing
+     * @param receiverAccId Account id of the receiver
+     * @param senderAccId Account id of the sender
+     */
     function testSqueeze(uint8 receiverAccId, uint8 senderAccId) public {
         address receiver = getAccount(receiverAccId);
         address sender = getAccount(senderAccId);
@@ -41,7 +49,11 @@ contract EchidnaSqueezeTests is
         }
     }
 
-    ///@notice `drips.squeezeStreamsResult` should match actual squeezed amount
+    /**
+     * @notice `drips.squeezeStreamsResult` should match actual squeezed amount
+     * @param receiverAccId Account id of the receiver
+     * @param senderAccId Account id of the sender
+     */
     function testSqueezeViewVsActual(uint8 receiverAccId, uint8 senderAccId)
         public
     {
@@ -57,6 +69,10 @@ contract EchidnaSqueezeTests is
         assert(squeezable == squeezed);
     }
 
+    /**
+     * @notice Squeezable amount should be equal to receivable amount in the future
+     * @param targetAccId Account id of the receiver
+     */
     function testSqueezableVsReceived(uint8 targetAccId) public heavy {
         address target = getAccount(targetAccId);
 
@@ -85,6 +101,11 @@ contract EchidnaSqueezeTests is
         assert(squeezable == receiveableDelta);
     }
 
+    /**
+     * @notice Squeezing with a fully hashed history should do nothing
+     * @param receiverAccId Account id of the receiver
+     * @param senderAccId Account id of the sender
+     */
     function testSqueezeWithFullyHashedHistory(
         uint8 receiverAccId,
         uint8 senderAccId
@@ -113,6 +134,14 @@ contract EchidnaSqueezeTests is
         assert(squeezableAfter == squeezableBefore);
     }
 
+    /**
+     * @notice Squeezing the same part(s) of history should only work the first time
+     * @param receiverAccId Account id of the receiver
+     * @param senderAccId Account id of the sender
+     * @param hashIndex Index of the history entry to squeeze
+     * @param receiversRandomSeed Random seed used to determine which history entries
+     * to leave out of the squeeze (by hashing them)
+     */
     function testSqueezeTwice(
         uint8 receiverAccId,
         uint8 senderAccId,
@@ -139,6 +168,16 @@ contract EchidnaSqueezeTests is
         assert(amount1 == 0);
     }
 
+    /**
+     * @notice Already streamed (and therefore squeezable) balance should not be
+     * affected changing the stream receivers
+     * @param receiverAccId Account id of the receiver
+     * @param senderAccId Account id of the sender
+     * @param amountPerSec Amount per second to stream
+     * @param startTime Start time for the stream
+     * @param duration Duration for the stream
+     * @param balanceDelta Amount to update stream balance with
+     */
     function testSqueezableAmountCantBeUndone(
         uint8 receiverAccId,
         uint8 senderAccId,
@@ -166,6 +205,12 @@ contract EchidnaSqueezeTests is
         assert(squeezableAfter == squeezableBefore);
     }
 
+    /**
+     * @notice Already streamed (and therefore squeezable) balance should not be
+     * affected by withdrawing all streaming balance
+     * @param receiverAccId Account id of the receiver
+     * @param senderAccId Account id of the sender
+     */
     function testSqueezableAmountCantBeWithdrawn(
         uint8 receiverAccId,
         uint8 senderAccId
@@ -182,6 +227,10 @@ contract EchidnaSqueezeTests is
         assert(squeezableAfter == squeezableBefore);
     }
 
+    /**
+     * @notice Check internal and external balances after withdrawing all funds
+     * from the system
+     */
     function testWithdrawAllTokens() external heavy {
         // remove all splits to prevent tokens from getting stuck in case
         // there are splits to self
@@ -228,7 +277,12 @@ contract EchidnaSqueezeTests is
         assert(totalUserBalance == STARTING_BALANCE * 4);
     }
 
-    ///@notice Squeezing should never revert
+    /**
+     * @notice Squeezing with default history (all history entries) should
+     * not revert
+     * @param receiverAccId Account id of the receiver
+     * @param senderAccId Account id of the sender
+     */
     function testSqueezeWithDefaultHistoryShouldNotRevert(
         uint8 receiverAccId,
         uint8 senderAccId
@@ -243,6 +297,14 @@ contract EchidnaSqueezeTests is
         }
     }
 
+    /**
+     * @notice Squeezing with fuzzed history should not revert
+     * @param receiverAccId Account id of the receiver
+     * @param senderAccId Account id of the sender
+     * @param hashIndex Index of the history entry to squeeze
+     * @param receiversRandomSeed Random seed used to determine which history entries
+     * to leave out of the squeeze (by hashing them)
+     */
     function testSqueezeWithFuzzedHistoryShouldNotRevert(
         uint8 receiverAccId,
         uint8 senderAccId,
@@ -267,6 +329,9 @@ contract EchidnaSqueezeTests is
         }
     }
 
+    /**
+     * @notice Withdrawing all funds from the system should never revert
+     */
     function testWithdrawAllTokensShouldNotRevert() public heavy {
         try
             EchidnaSqueezeTests(address(this)).testWithdrawAllTokens()
