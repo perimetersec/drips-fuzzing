@@ -108,8 +108,6 @@ contract EchidnaSplitsHelpers is EchidnaBase {
         view
         returns (uint32)
     {
-        uint32 min = 1;
-        uint32 max = drips.TOTAL_SPLITS_WEIGHT();
-        return min + (weight % ((max + 1) - existingWeights - min));
+        return (weight % (drips.TOTAL_SPLITS_WEIGHT() - existingWeights)) + 1;
     }
 }
