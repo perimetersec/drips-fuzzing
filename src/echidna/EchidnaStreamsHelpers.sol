@@ -158,12 +158,12 @@ contract EchidnaStreamsHelpers is EchidnaBase {
     }
 
     function addStreamImmediatelySqueezable(
-        uint8 receiverAccId,
-        uint8 senderAccId,
+        uint8 fromAccId,
+        uint8 toAccId,
         uint160 amountPerSec
     ) public {
-        address receiver = getAccount(receiverAccId);
-        address sender = getAccount(senderAccId);
+        address receiver = getAccount(toAccId);
+        address sender = getAccount(fromAccId);
 
         // calculate amount per second so there will be something to squeeze
         // this cycle
@@ -180,7 +180,7 @@ contract EchidnaStreamsHelpers is EchidnaBase {
         }
 
         // add the stream
-        addStream(senderAccId, receiverAccId, amountPerSec, 0, 0, balanceDelta);
+        addStream(fromAccId, toAccId, amountPerSec, 0, 0, balanceDelta);
 
         // warp 1 second forward so there is something to squeeze
         hevm.warp(block.timestamp + 1);
