@@ -4,6 +4,10 @@ import {AddressDriver} from "src/AddressDriver.sol";
 import {DripsEchidna} from "./DripsEchidna.sol";
 import {ManagedEchidna} from "./ManagedEchidna.sol";
 
+/**
+ * @title Wrapper around AddressDriver with minor fuzzing helpers
+ * @author Rappie
+ */
 contract AddressDriverEchidna is AddressDriver, ManagedEchidna {
     constructor(
         DripsEchidna drips_,

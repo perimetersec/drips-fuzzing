@@ -4,9 +4,20 @@ import {Drips} from "src/Drips.sol";
 
 import {ManagedEchidna} from "./ManagedEchidna.sol";
 
+/**
+ * @title Wrapper around Drips with minor fuzzing helpers
+ * @author Rappie
+ */
 contract DripsEchidna is Drips, ManagedEchidna {
     constructor(uint32 cycleSecs_) Drips(cycleSecs_) {}
 
+    /**
+     * @notice Get the amtDelta for a given user and cycle
+     * @param accountId The account to get the amtDelta for
+     * @param erc20 The ERC20 token
+     * @param cycle The cycle to get the amtDelta for
+     * @return The amtDelta for this cycle and the next cycle
+     */
     function getAmtDeltaForCycle(
         uint256 accountId,
         IERC20 erc20,
