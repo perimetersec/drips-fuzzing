@@ -4,11 +4,19 @@ import "./base/EchidnaBase.sol";
 import "./EchidnaBasicHelpers.sol";
 import "./EchidnaSplitsHelpers.sol";
 
+/**
+ * @title Mixin containing tests for splitting
+ * @author Rappie
+ */
 contract EchidnaSplitsTests is
     EchidnaBase,
     EchidnaBasicHelpers,
     EchidnaSplitsHelpers
 {
+    /**
+     * @notice Test internal accounting for splittable amount after splitting
+     * @param targetAccId Account id execute split on
+     */
     function testSplittableAfterSplit(uint8 targetAccId) public {
         address target = getAccount(targetAccId);
         uint256 targetDripsAccId = getDripsAccountId(target);
@@ -63,6 +71,10 @@ contract EchidnaSplitsTests is
         }
     }
 
+    /**
+     * @notice Test internal accounting for collectable amount after splitting
+     * @param targetAccId Account id execute split on
+     */
     function testCollectableAfterSplit(uint8 targetAccId) public {
         address target = getAccount(targetAccId);
         uint256 targetDripsAccId = getDripsAccountId(target);
@@ -74,6 +86,11 @@ contract EchidnaSplitsTests is
         assert(colBalAfter == colBalBefore + collectableAmt);
     }
 
+    /**
+     * @notice After splitting, all receivers should have their splittable
+     * amount increased by the amount they were supposed to receive
+     * @param targetAccId Account id execute split on
+     */
     function testReceiversReceivedSplit(uint8 targetAccId) public {
         address target = getAccount(targetAccId);
         uint256 targetDripsAccId = getDripsAccountId(target);
@@ -141,6 +158,10 @@ contract EchidnaSplitsTests is
         }
     }
 
+    /**
+     * @notice `drips.splitResult` should match actual split amount
+     * @param targetAccId Account id execute split on
+     */
     function testSplitViewVsActual(uint8 targetAccId) public {
         address target = getAccount(targetAccId);
         uint256 targetDripsAccId = getDripsAccountId(target);
@@ -161,7 +182,10 @@ contract EchidnaSplitsTests is
         assert(splitAmtView == splitAmtActual);
     }
 
-    ///@notice Splitting should never revert
+    /**
+     * @notice Splitting should never revert
+     * @param targetAccId Account id execute split on
+     */
     function testSplitShouldNotRevert(uint8 targetAccId) public {
         address target = getAccount(targetAccId);
         uint256 targetDripsAccId = getDripsAccountId(target);
@@ -171,6 +195,12 @@ contract EchidnaSplitsTests is
         }
     }
 
+    /**
+     * @notice Setting splits with sane defaults should not revert
+     * @param senderAccId Account id of the sender
+     * @param receiverAccId Account id of the receiver in the receivers list
+     * @param weight Weight of the receiver
+     */
     function testSetSplitsShouldNotRevert(
         uint8 senderAccId,
         uint8 receiverAccId,
@@ -187,6 +217,12 @@ contract EchidnaSplitsTests is
         }
     }
 
+    /**
+     * @notice Adding splits with sane defaults should not revert
+     * @param senderAccId Account id of the sender
+     * @param receiverAccId Account id of the receiver in the receivers list
+     * @param weight Weight of the receiver
+     */
     function testAddSplitsShouldNotRevert(
         uint8 senderAccId,
         uint8 receiverAccId,
