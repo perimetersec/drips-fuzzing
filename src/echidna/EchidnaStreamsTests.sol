@@ -3,8 +3,16 @@
 import "./base/EchidnaBase.sol";
 import "./EchidnaStreamsHelpers.sol";
 
+/**
+ * @title Mixin containing tests for splitting
+ * @author Rappie
+ */
 contract EchidnaStreamsTests is EchidnaBase, EchidnaStreamsHelpers {
-    ///@notice Test internal accounting after updating stream balance
+    /**
+     * @notice Test internal accounting after updating stream balance
+     * @param targetAccId Account id of the sender
+     * @param balanceDelta Amount to update stream balance with
+     */
     function testSetStreamBalance(uint8 targetAccId, int128 balanceDelta)
         public
     {
@@ -46,6 +54,15 @@ contract EchidnaStreamsTests is EchidnaBase, EchidnaStreamsHelpers {
         );
     }
 
+    /**
+     * @notice Check balances before and after adding a stream, warping to the
+     * future, and receiving the stream.
+     * @param fromAccId Account id of the sender
+     * @param toAccId Account id to be added as receiver
+     * @param amtPerSecAdded Amount per second for the stream to be added
+     * @dev This test is resource heavy because it contains lots of logic and
+     * warping to the future.
+     */
     function testBalanceAtInFuture(
         uint8 fromAccId,
         uint8 toAccId,
@@ -127,7 +144,15 @@ contract EchidnaStreamsTests is EchidnaBase, EchidnaStreamsHelpers {
         assert(expectedBalanceChange == expectedReceivedChange);
     }
 
-    ///@notice Setting streams with sane defaults should not revert
+    /**
+     * @notice Setting streams with sane defaults should not revert
+     * @param fromAccId Account id of the sender
+     * @param toAccId Account id of the receiver
+     * @param amountPerSec Amount per second for the stream
+     * @param startTime Start time for the stream
+     * @param duration Duration for the stream
+     * @param balanceDelta Amount to update stream balance with
+     */
     function testSetStreamsShouldNotRevert(
         uint8 fromAccId,
         uint8 toAccId,
@@ -150,7 +175,15 @@ contract EchidnaStreamsTests is EchidnaBase, EchidnaStreamsHelpers {
         }
     }
 
-    ///@notice Adding streams with sane defaults should not revert
+    /**
+     * @notice Adding streams with sane defaults should not revert
+     * @param fromAccId Account id of the sender
+     * @param toAccId Account id of the receiver
+     * @param amountPerSec Amount per second for the stream
+     * @param startTime Start time for the stream
+     * @param duration Duration for the stream
+     * @param balanceDelta Amount to update stream balance with
+     */
     function testAddStreamShouldNotRevert(
         uint8 fromAccId,
         uint8 toAccId,
@@ -178,7 +211,11 @@ contract EchidnaStreamsTests is EchidnaBase, EchidnaStreamsHelpers {
         }
     }
 
-    ///@notice Removing streams should not revert
+    /*
+     * @notice Removing streams should not revert
+     * @param targetAccId Account id of the sender
+     * @param indexSeed Random seed used to determine which receiver to remove
+     */
     function testRemoveStreamShouldNotRevert(
         uint8 targetAccId,
         uint256 indexSeed
@@ -196,7 +233,11 @@ contract EchidnaStreamsTests is EchidnaBase, EchidnaStreamsHelpers {
         }
     }
 
-    ///@notice Updating stream balance with sane defaults should not revert
+    /**
+     * @notice Updating stream balance with sane defaults should not revert
+     * @param targetAccId Account id of the sender
+     * @param balanceDelta Amount to update stream balance with
+     */
     function testSetStreamBalanceShouldNotRevert(
         uint8 targetAccId,
         int128 balanceDelta
@@ -211,7 +252,10 @@ contract EchidnaStreamsTests is EchidnaBase, EchidnaStreamsHelpers {
         }
     }
 
-    ///@notice Withdrawing all stream balance should not revert
+    /**
+     * @notice Withdrawing all stream balance should not revert
+     * @param targetAccId Account id of the sender
+     */
     function testSetStreamBalanceWithdrawAllShouldNotRevert(uint8 targetAccId)
         public
     {
