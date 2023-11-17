@@ -4,7 +4,12 @@ import "./base/EchidnaBase.sol";
 import "./EchidnaBasicHelpers.sol";
 
 contract EchidnaBasicTests is EchidnaBase, EchidnaBasicHelpers {
-    ///@notice Giving an amount `<=` token balance should never revert
+    /**
+     * @notice Giving an amount `<=` token balance should never revert
+     * @param fromAccId Account id of the giver
+     * @param toAccId Account id of the receiver
+     * @param amount Amount to give
+     */
     function testGiveShouldNotRevert(
         uint8 fromAccId,
         uint8 toAccId,
@@ -23,7 +28,11 @@ contract EchidnaBasicTests is EchidnaBase, EchidnaBasicHelpers {
         }
     }
 
-    ///@notice Test internal accounting after receiving streams
+    /**
+     * @notice Test internal accounting after receiving streams
+     * @param targetAccId Account id of the receiver
+     * @param maxCycles Maximum number of cycles to receive
+     */
     function testReceiveStreams(uint8 targetAccId, uint32 maxCycles) public {
         address target = getAccount(targetAccId);
         uint256 targetDripsAccId = getDripsAccountId(target);
@@ -41,7 +50,10 @@ contract EchidnaBasicTests is EchidnaBase, EchidnaBasicHelpers {
         }
     }
 
-    ///@notice Receiving streams should never revert
+    /**
+     * @notice Receiving streams should never revert
+     * @param targetAccId Account id of the receiver
+     */
     function testReceiveStreamsShouldNotRevert(uint8 targetAccId) public {
         address target = getAccount(targetAccId);
         uint256 targetDripsAccId = getDripsAccountId(target);
@@ -53,8 +65,12 @@ contract EchidnaBasicTests is EchidnaBase, EchidnaBasicHelpers {
         }
     }
 
-    ///@notice If there is a receivable amount, there should be at least one
-    ///receivable cycle
+    /**
+     * @notice If there is a receivable amount, there should be at least one
+     * receivable cycle
+     * @param targetAccId Account id of the receiver
+     * @param maxCycles Maximum number of cycles to receive
+     */
     function testReceiveStreamsViewConsistency(
         uint8 targetAccId,
         uint32 maxCycles
@@ -80,7 +96,11 @@ contract EchidnaBasicTests is EchidnaBase, EchidnaBasicHelpers {
         // if (receivableCycles > 0) assert(receivable > 0);
     }
 
-    ///@notice `drips.receiveStreamsResult` should match actual received amount
+    /**
+     * @notice `drips.receiveStreamsResult` should match actual received amount
+     * @param targetAccId Account id of the receiver
+     * @param maxCycles Maximum number of cycles to receive
+     */
     function testReceiveStreamsViewVsActual(uint8 targetAccId, uint32 maxCycles)
         public
     {
@@ -102,7 +122,11 @@ contract EchidnaBasicTests is EchidnaBase, EchidnaBasicHelpers {
         assert(receivable == received);
     }
 
-    ///@notice Test internal accounting after collecting
+    /**
+     * @notice Test internal accounting after collecting
+     * @param fromAccId Account id of the collector
+     * @param toAccId Account id of the receiving account
+     */
     function testCollect(uint8 fromAccId, uint8 toAccId) public {
         address from = getAccount(fromAccId);
         address to = getAccount(toAccId);
@@ -121,7 +145,11 @@ contract EchidnaBasicTests is EchidnaBase, EchidnaBasicHelpers {
         assert(tokenBalAfter == tokenBalBefore + collected);
     }
 
-    ///@notice Collecting should never revert
+    /**
+     * @notice Collecting should never revert
+     * @param fromAccId Account id of the collector
+     * @param toAccId Account id of the receiving account
+     */
     function testCollectShouldNotRevert(uint8 fromAccId, uint8 toAccId) public {
         address from = getAccount(fromAccId);
         address to = getAccount(toAccId);
