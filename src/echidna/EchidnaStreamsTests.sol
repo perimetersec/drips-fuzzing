@@ -4,7 +4,7 @@ import "./base/EchidnaBase.sol";
 import "./EchidnaStreamsHelpers.sol";
 
 /**
- * @title Mixin containing tests for splitting
+ * @title Mixin containing tests for streams
  * @author Rappie
  */
 contract EchidnaStreamsTests is EchidnaBase, EchidnaStreamsHelpers {
