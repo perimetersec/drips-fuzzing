@@ -3,7 +3,19 @@
 import "./base/EchidnaBase.sol";
 import "./EchidnaBasicHelpers.sol";
 
+/**
+ * @title Mixin containing helpers for squeezing
+ * @author Rappie
+ */
 contract EchidnaSqueezeHelpers is EchidnaBase, EchidnaBasicHelpers {
+    /**
+     * @notice Internal helper function to squeeze streams
+     * @param receiverAccId Account id of the receiver
+     * @param senderAccId Account id of the sender
+     * @param historyHash Hash of the streams history
+     * @param history Streams history array
+     * @return Amount squeezed
+     */
     function _squeeze(
         uint8 receiverAccId,
         uint8 senderAccId,
@@ -26,6 +38,12 @@ contract EchidnaSqueezeHelpers is EchidnaBase, EchidnaBasicHelpers {
         return amount;
     }
 
+    /**
+     * @notice Squeeze streams with default history (all StreamHistory entries)
+     * @param receiverAccId Account id of the receiver
+     * @param senderAccId Account id of the sender
+     * @return Amount squeezed
+     */
     function squeezeWithDefaultHistory(uint8 receiverAccId, uint8 senderAccId)
         public
         returns (uint128)
@@ -39,6 +57,17 @@ contract EchidnaSqueezeHelpers is EchidnaBase, EchidnaBasicHelpers {
             );
     }
 
+    /**
+     * @notice Squeeze streams with a fuzzed history
+     * @param receiverAccId Account id of the receiver
+     * @param senderAccId Account id of the sender
+     * @param hashIndex Index of the history hash to use
+     * @param receiversRandomSeed Random seed used for fuzzing the history
+     * @return Amount squeezed
+     * @dev This function will use the seed to make random changes to the history.
+     * These include changing the starting point of the history, and hashing
+     * certain history entries to leave them out of the squeeze.
+     */
     function squeezeWithFuzzedHistory(
         uint8 receiverAccId,
         uint8 senderAccId,
@@ -62,10 +91,19 @@ contract EchidnaSqueezeHelpers is EchidnaBase, EchidnaBasicHelpers {
         return _squeeze(receiverAccId, senderAccId, historyHash, history);
     }
 
+    /**
+     * @notice Squeeze streams sent to self
+     * @param targetAccId Account id of the sender
+     */
     function squeezeToSelf(uint8 targetAccId) public {
         squeezeWithDefaultHistory(targetAccId, targetAccId);
     }
 
+    /**
+     * @notice Squeeze streams from all possible senders to target
+     * @param targetAccId Account id of the receiver
+     * @dev This can be used to test extracting all value from the system
+     */
     function squeezeAllSenders(uint8 targetAccId) public {
         squeezeWithDefaultHistory(
             targetAccId,
@@ -85,6 +123,11 @@ contract EchidnaSqueezeHelpers is EchidnaBase, EchidnaBasicHelpers {
         );
     }
 
+    /**
+     * @notice Squeeze all senders, receive streams, split and collect funds to self
+     * @param targetAccId Target account
+     * @dev Extra helper that narrows the search space for the fuzzer
+     */
     function squeezeAllAndReceiveAndSplitAndCollectToSelf(uint8 targetAccId)
         public
     {
@@ -92,6 +135,14 @@ contract EchidnaSqueezeHelpers is EchidnaBase, EchidnaBasicHelpers {
         receiveStreamsSplitAndCollectToSelf(targetAccId);
     }
 
+    /**
+     * @notice Helper to create a fuzzed version of a sender's streams history
+     * @param targetAccId Account id of the sender
+     * @param hashIndex Index of the history entry to be used as the starting point
+     * @param receiversRandomSeed Random seed used to determine which history entries
+     * to leave out of the squeeze (by hashing them)
+     * @return Hash of the history, and the fuzzed streams history array
+     */
     function getFuzzedStreamsHistory(
         uint8 targetAccId,
         uint256 hashIndex,
