@@ -60,26 +60,28 @@ contract EchidnaSqueezeTests is
     function testSqueezableVsReceived(uint8 targetAccId) public heavy {
         address target = getAccount(targetAccId);
 
+        // store the current squeezable and receivable amount
         uint128 squeezable = getTotalSqueezableAmountForUser(target);
         uint128 receivableBefore = getReceivableAmountForUser(target);
 
+        // remove all streaming balance from the system, so that warping to
+        // the future will not increase the receivable/squeezable amount
         setStreamBalanceWithdrawAll(ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER0]);
         setStreamBalanceWithdrawAll(ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER1]);
         setStreamBalanceWithdrawAll(ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER2]);
         setStreamBalanceWithdrawAll(ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER3]);
 
-        uint256 currentTimestamp = block.timestamp;
-        uint256 futureTimestamp = getCurrentCycleEnd() + 1;
-
-        hevm.warp(futureTimestamp);
+        // warp to the point in time where the streams are receivable
+        hevm.warp(getCurrentCycleEnd() + 1);
 
         uint128 receivableAfter = getReceivableAmountForUser(target);
 
-        receiveStreamsAllCycles(targetAccId);
-
+        // sanity check
         assert(receivableAfter >= receivableBefore);
+
         uint128 receiveableDelta = receivableAfter - receivableBefore;
 
+        // squeezable before should match receivable now
         assert(squeezable == receiveableDelta);
     }
 
