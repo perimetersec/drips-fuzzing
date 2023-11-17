@@ -2,8 +2,15 @@
 
 import "./base/EchidnaBase.sol";
 
+/**
+ * @title Mixin containing invariant tests
+ * @author Rappie
+ */
 contract EchidnaInvariantTests is EchidnaBase {
-    ///@notice Withdrawing directly from Drips should always fail
+    /**
+     * @notice Withdrawing any amount directly from Drips should fail
+     * @param amount Amount to withdraw
+     */
     function invariantWithdrawShouldAlwaysFail(uint256 amount) public {
         require(amount > 0, "withdraw amount must be > 0");
 
@@ -12,7 +19,11 @@ contract EchidnaInvariantTests is EchidnaBase {
         } catch {}
     }
 
-    ///@notice `amtPerSec` should never be lower than `drips.minAmtPerSec()`
+    /**
+     * @notice `amtPerSec` should never be lower than `drips.minAmtPerSec()`
+     * @param targetAccId Account id of the receiver
+     * @param index Index of the receiver
+     */
     function invariantAmtPerSecVsMinAmtPerSec(uint8 targetAccId, uint256 index)
         public
     {
@@ -27,7 +38,10 @@ contract EchidnaInvariantTests is EchidnaBase {
         assert(amtPerSec >= drips.minAmtPerSec());
     }
 
-    ///@notice Total of internal balances should match token balance of Drips
+    /**
+     * @notice The total of all internal balances should match token balance
+     * of the Drips contract
+     */
     function invariantAccountingVsTokenBalance() public {
         uint256 tokenBalance = token.balanceOf(address(drips));
         uint256 dripsBalancesTotal = getDripsBalancesTotalForAllUsers();
@@ -35,7 +49,10 @@ contract EchidnaInvariantTests is EchidnaBase {
         assert(tokenBalance == dripsBalancesTotal);
     }
 
-    ///@notice The sum of all `amtDelta`s for an account should be zero
+    /**
+     * @notice The sum of all `amtDelta`s for an account should be zero
+     * @param targetAccId Target account to perform the test on
+     */
     function invariantSumAmtDeltaIsZero(uint8 targetAccId) public heavy {
         address target = getAccount(targetAccId);
         uint256 targetDripsAccId = getDripsAccountId(target);
