@@ -3,6 +3,10 @@
 import "./base/EchidnaBase.sol";
 import "./EchidnaBasicHelpers.sol";
 
+/**
+ * @title Mixin containing basic tests
+ * @author Rappie
+ */
 contract EchidnaBasicTests is EchidnaBase, EchidnaBasicHelpers {
     /**
      * @notice Giving an amount `<=` token balance should never revert

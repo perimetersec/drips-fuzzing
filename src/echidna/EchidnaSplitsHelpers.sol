@@ -2,7 +2,17 @@
 
 import "./base/EchidnaBase.sol";
 
+/**
+ * @title Mixin containing helpers for splitting
+ * @author Rappie
+ */
 contract EchidnaSplitsHelpers is EchidnaBase {
+    /**
+     * @notice Internal helper function to set splits receivers
+     * @param senderAccId Account id of the sender
+     * @param unsortedReceivers Receivers list to set
+     * @dev This function also sorts the receivers list
+     */
     function _setSplits(
         uint8 senderAccId,
         SplitsReceiver[] memory unsortedReceivers
@@ -19,6 +29,12 @@ contract EchidnaSplitsHelpers is EchidnaBase {
         driver.setSplits(newReceivers);
     }
 
+    /**
+     * @notice Set splits, overwriting the current receivers list
+     * @param senderAccId Account id of the sender
+     * @param receiverAccId Account id of the receiver in the receivers list
+     * @param weight Weight of the receiver
+     */
     function setSplits(
         uint8 senderAccId,
         uint8 receiverAccId,
@@ -38,15 +54,29 @@ contract EchidnaSplitsHelpers is EchidnaBase {
         _setSplits(senderAccId, receivers);
     }
 
+    /**
+     * @notice Set splits, overwriting the current receivers list
+     * @param senderAccId Account id of the sender
+     * @param receiverAccId Account id of the receiver in the receivers list
+     * @param weight Weight of the receiver
+     * @dev This function clamps the weight between the minimum and maximum
+     * allowed values
+     */
     function setSplitsWithClamping(
         uint8 senderAccId,
         uint8 receiverAccId,
         uint32 weight
     ) public {
-        weight = clampSplitWeight(weight, 0); // 0 existing weights
+        weight = clampSplitWeight(weight, 0); // there are no existing weights
         setSplits(senderAccId, receiverAccId, weight);
     }
 
+    /**
+     * @notice Add a splits receiver to the existing list of receivers
+     * @param senderAccId Account id of the sender
+     * @param receiverAccId Account id of the receiver to add
+     * @param weight Weight of the receiver
+     */
     function addSplitsReceiver(
         uint8 senderAccId,
         uint8 receiverAccId,
@@ -75,6 +105,14 @@ contract EchidnaSplitsHelpers is EchidnaBase {
         _setSplits(senderAccId, newReceivers);
     }
 
+    /**
+     * @notice Add a splits receiver to the existing list of receivers
+     * @param senderAccId Account id of the sender
+     * @param receiverAccId Account id of the receiver to add
+     * @param weight Weight of the receiver
+     * @dev This function clamps the weight between the minimum and maximum
+     * allowed values
+     */
     function addSplitsReceiverWithClamping(
         uint8 senderAccId,
         uint8 receiverAccId,
@@ -98,11 +136,21 @@ contract EchidnaSplitsHelpers is EchidnaBase {
         addSplitsReceiver(senderAccId, receiverAccId, weight);
     }
 
+    /**
+     * @notice Remove any existing splits
+     * @param targetAccId Target account id
+     */
     function removeAllSplits(uint8 targetAccId) public {
         SplitsReceiver[] memory receivers = new SplitsReceiver[](0);
         _setSplits(targetAccId, receivers);
     }
 
+    /**
+     * @notice Clamp the weight between the minimum and maximum allowed values
+     * @param weight Weight to clamp
+     * @param existingWeights Sum of all the existing weights
+     * @return Clamped weight
+     */
     function clampSplitWeight(uint32 weight, uint32 existingWeights)
         public
         view
