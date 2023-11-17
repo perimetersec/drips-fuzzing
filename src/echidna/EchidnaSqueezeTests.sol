@@ -228,56 +228,6 @@ contract EchidnaSqueezeTests is
     }
 
     /**
-     * @notice Check internal and external balances after withdrawing all funds
-     * from the system
-     */
-    function testWithdrawAllTokens() external heavy {
-        // remove all splits to prevent tokens from getting stuck in case
-        // there are splits to self
-        removeAllSplits(ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER0]);
-        removeAllSplits(ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER1]);
-        removeAllSplits(ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER2]);
-        removeAllSplits(ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER3]);
-
-        squeezeAllSenders(ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER0]);
-        squeezeAllSenders(ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER1]);
-        squeezeAllSenders(ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER2]);
-        squeezeAllSenders(ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER3]);
-
-        receiveStreamsSplitAndCollectToSelf(
-            ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER0]
-        );
-        receiveStreamsSplitAndCollectToSelf(
-            ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER1]
-        );
-        receiveStreamsSplitAndCollectToSelf(
-            ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER2]
-        );
-        receiveStreamsSplitAndCollectToSelf(
-            ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER3]
-        );
-
-        setStreamBalanceWithdrawAll(ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER0]);
-        setStreamBalanceWithdrawAll(ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER1]);
-        setStreamBalanceWithdrawAll(ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER2]);
-        setStreamBalanceWithdrawAll(ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER3]);
-
-        uint256 dripsBalance = token.balanceOf(address(drips));
-        uint256 user0Balance = token.balanceOf(ADDRESS_USER0);
-        uint256 user1Balance = token.balanceOf(ADDRESS_USER1);
-        uint256 user2Balance = token.balanceOf(ADDRESS_USER2);
-        uint256 user3Balance = token.balanceOf(ADDRESS_USER3);
-
-        uint256 totalUserBalance = user0Balance +
-            user1Balance +
-            user2Balance +
-            user3Balance;
-
-        assert(dripsBalance == 0);
-        assert(totalUserBalance == STARTING_BALANCE * 4);
-    }
-
-    /**
      * @notice Squeezing with default history (all history entries) should
      * not revert
      * @param receiverAccId Account id of the receiver
@@ -329,14 +279,4 @@ contract EchidnaSqueezeTests is
         }
     }
 
-    /**
-     * @notice Withdrawing all funds from the system should never revert
-     */
-    function testWithdrawAllTokensShouldNotRevert() public heavy {
-        try
-            EchidnaSqueezeTests(address(this)).testWithdrawAllTokens()
-        {} catch {
-            assert(false);
-        }
-    }
 }

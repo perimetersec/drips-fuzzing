@@ -1,12 +1,20 @@
 // SPDX-License-Identifier: MIT
 
-import "./base/EchidnaBase.sol";
+import "./EchidnaBasicHelpers.sol";
+import "./EchidnaSplitsHelpers.sol";
+import "./EchidnaStreamsHelpers.sol";
+import "./EchidnaSqueezeHelpers.sol";
 
 /**
  * @title Mixin containing invariant tests
  * @author Rappie
  */
-contract EchidnaInvariantTests is EchidnaBase {
+contract EchidnaInvariantTests is
+    EchidnaBasicHelpers,
+    EchidnaSplitsHelpers,
+    EchidnaStreamsHelpers,
+    EchidnaSqueezeHelpers
+{
     /**
      * @notice Withdrawing any amount directly from Drips should fail
      * @param amount Amount to withdraw
@@ -47,6 +55,67 @@ contract EchidnaInvariantTests is EchidnaBase {
         uint256 dripsBalancesTotal = getDripsBalancesTotalForAllUsers();
 
         assert(tokenBalance == dripsBalancesTotal);
+    }
+
+    /**
+     * @notice Check internal and external balances after withdrawing all funds
+     * from the system
+     */
+    function invariantWithdrawAllTokens() external heavy {
+        // remove all splits to prevent tokens from getting stuck in case
+        // there are splits to self
+        removeAllSplits(ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER0]);
+        removeAllSplits(ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER1]);
+        removeAllSplits(ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER2]);
+        removeAllSplits(ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER3]);
+
+        squeezeAllSenders(ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER0]);
+        squeezeAllSenders(ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER1]);
+        squeezeAllSenders(ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER2]);
+        squeezeAllSenders(ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER3]);
+
+        receiveStreamsSplitAndCollectToSelf(
+            ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER0]
+        );
+        receiveStreamsSplitAndCollectToSelf(
+            ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER1]
+        );
+        receiveStreamsSplitAndCollectToSelf(
+            ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER2]
+        );
+        receiveStreamsSplitAndCollectToSelf(
+            ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER3]
+        );
+
+        setStreamBalanceWithdrawAll(ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER0]);
+        setStreamBalanceWithdrawAll(ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER1]);
+        setStreamBalanceWithdrawAll(ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER2]);
+        setStreamBalanceWithdrawAll(ADDRESS_TO_ACCOUNT_ID[ADDRESS_USER3]);
+
+        uint256 dripsBalance = token.balanceOf(address(drips));
+        uint256 user0Balance = token.balanceOf(ADDRESS_USER0);
+        uint256 user1Balance = token.balanceOf(ADDRESS_USER1);
+        uint256 user2Balance = token.balanceOf(ADDRESS_USER2);
+        uint256 user3Balance = token.balanceOf(ADDRESS_USER3);
+
+        uint256 totalUserBalance = user0Balance +
+            user1Balance +
+            user2Balance +
+            user3Balance;
+
+        assert(dripsBalance == 0);
+        assert(totalUserBalance == STARTING_BALANCE * 4);
+    }
+
+    /**
+     * @notice Withdrawing all funds from the system should never revert
+     */
+    function invariantWithdrawAllTokensShouldNotRevert() public heavy {
+        try
+            EchidnaInvariantTests(address(this)).invariantWithdrawAllTokens()
+        {} catch {
+            assert(false);
+        }
     }
 
     /**
