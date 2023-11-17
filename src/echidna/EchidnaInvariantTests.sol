@@ -21,12 +21,10 @@ contract EchidnaInvariantTests is EchidnaBase {
         StreamReceiver[] memory receivers = getStreamReceivers(target);
         require(receivers.length > 0, "no receivers");
 
-        // shouldnt this be without the +1 ?
-        index = index % (receivers.length + 1);
+        index = index % receivers.length;
         uint160 amtPerSec = receivers[index].config.amtPerSec();
-        uint160 minAmtPerSec = drips.minAmtPerSec();
 
-        assert(amtPerSec >= minAmtPerSec);
+        assert(amtPerSec >= drips.minAmtPerSec());
     }
 
     ///@notice Total of internal balances should match token balance of Drips
