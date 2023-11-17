@@ -2,10 +2,31 @@
 
 import "./base/EchidnaBase.sol";
 
+/**
+ * @title Mixin containing helpers for streams
+ * @author Rappie
+ */
 contract EchidnaStreamsHelpers is EchidnaBase {
+    // Internal variables to store maxEndHint1 and maxEndHint2. These are used
+    // as hints to the Drips contract to speed up the setStreams call.
+    //
+    // Instead of fuzzing these directly, we use the `setMaxEndHints` helper
+    // function to set these values. This makes fuzzing these toggleable and
+    // also makes debugging easier because the values don't have to be passed
+    // as arguments to all functions calling `setStreams`.
+    //
     uint32 internal maxEndHint1;
     uint32 internal maxEndHint2;
 
+    /**
+     * @notice Internal helper function to set streams receivers
+     * @param from Account to set streams for
+     * @param currReceivers Current stream receivers (Drips needs this)
+     * @param balanceDelta Balance delta to set
+     * @param unsortedNewReceivers New receivers list to set
+     * @return Real balance delta
+     * @dev This function also sorts the receivers list
+     */
     function _setStreams(
         address from,
         StreamReceiver[] memory currReceivers,
@@ -32,6 +53,16 @@ contract EchidnaStreamsHelpers is EchidnaBase {
         return realBalanceDelta;
     }
 
+    /**
+     * @notice Set streams, overwriting the current receivers list
+     * @param fromAccId Account id of the sender
+     * @param toAccId Account id of the receiver in the receivers list
+     * @param amountPerSec Amount per second to stream
+     * @param startTime Start time of the stream
+     * @param duration Duration of the stream
+     * @param balanceDelta Balance delta to set
+     * @return Real balance delta
+     */
     function setStreams(
         uint8 fromAccId,
         uint8 toAccId,
@@ -64,6 +95,18 @@ contract EchidnaStreamsHelpers is EchidnaBase {
         return realBalanceDelta;
     }
 
+    /**
+     * @notice Set streams, overwriting the current receivers list
+     * @param fromAccId Account id of the sender
+     * @param toAccId Account id of the receiver in the receivers list
+     * @param amountPerSec Amount per second to stream
+     * @param startTime Start time of the stream
+     * @param duration Duration of the stream
+     * @param balanceDelta Balance delta to set
+     * @return Real balance delta
+     * @dev This function clamps the amountPerSec, startTime, duration and
+     * balanceDelta between the minimum and maximum allowed values
+     */
     function setStreamsWithClamping(
         uint8 fromAccId,
         uint8 toAccId,
@@ -90,6 +133,16 @@ contract EchidnaStreamsHelpers is EchidnaBase {
         );
     }
 
+    /**
+     * @notice Add a stream receiver to the existing list of receivers
+     * @param fromAccId Account id of the sender
+     * @param toAccId Account id of the receiver to add
+     * @param amountPerSec Amount per second to stream
+     * @param startTime Start time of the stream
+     * @param duration Duration of the stream
+     * @param balanceDelta Balance delta to set
+     * @return Real balance delta
+     */
     function addStream(
         uint8 fromAccId,
         uint8 toAccId,
@@ -131,6 +184,17 @@ contract EchidnaStreamsHelpers is EchidnaBase {
         return realBalanceDelta;
     }
 
+    /**
+     * @notice Add a stream receiver to the existing list of receivers
+     * @param fromAccId Account id of the sender
+     * @param toAccId Account id of the receiver to add
+     * @param amountPerSec Amount per second to stream
+     * @param startTime Start time of the stream
+     * @param duration Duration of the stream
+     * @param balanceDelta Balance delta to set
+     * @dev This function clamps the amountPerSec, startTime, duration and
+     * balanceDelta between the minimum and maximum allowed values
+     */
     function addStreamWithClamping(
         uint8 fromAccId,
         uint8 toAccId,
@@ -157,6 +221,15 @@ contract EchidnaStreamsHelpers is EchidnaBase {
             );
     }
 
+    /**
+     * @notice Add a stream receiver to the existing list of receivers, making sure
+     * it is immediately squeezable in a transaction after this call
+     * @param fromAccId Account id of the sender
+     * @param toAccId Account id of the receiver to add
+     * @param amountPerSec Amount per second to stream
+     * @dev This is meant as a helper to quickly seed the corpus with situations
+     * where there is something to squeeze in the next transaction
+     */
     function addStreamImmediatelySqueezable(
         uint8 fromAccId,
         uint8 toAccId,
@@ -186,6 +259,11 @@ contract EchidnaStreamsHelpers is EchidnaBase {
         hevm.warp(block.timestamp + 1);
     }
 
+    /**
+     * @notice Remove a stream receiver from the existing list of receivers
+     * @param targetAccId Account id of the receiver to remove
+     * @param indexSeed Random seed used to determine which receiver to remove
+     */
     function removeStream(uint8 targetAccId, uint256 indexSeed) public {
         address target = getAccount(targetAccId);
 
@@ -207,6 +285,13 @@ contract EchidnaStreamsHelpers is EchidnaBase {
         _setStreams(target, oldReceivers, 0, newReceivers);
     }
 
+    /**
+     * @notice Update stream balance by calling `setStreams` with the same
+     * receivers list
+     * @param targetAccId Account id of the sender
+     * @param balanceDelta Balance delta to set
+     * @return Real balance delta
+     */
     function setStreamBalance(uint8 targetAccId, int128 balanceDelta)
         public
         returns (int128)
@@ -223,6 +308,14 @@ contract EchidnaStreamsHelpers is EchidnaBase {
         return realBalanceDelta;
     }
 
+    /**
+     * @notice Update stream balance by calling `setStreams` with the same
+     * receivers list
+     * @param targetAccId Account id of the sender
+     * @param balanceDelta Balance delta to set
+     * @dev This function clamps the balanceDelta between the minimum and
+     * maximum allowed values
+     */
     function setStreamBalanceWithClamping(
         uint8 targetAccId,
         int128 balanceDelta
@@ -232,6 +325,12 @@ contract EchidnaStreamsHelpers is EchidnaBase {
         setStreamBalance(targetAccId, balanceDelta);
     }
 
+    /**
+     * @notice Withdraw all stream balance by calling `setStreams` with the same
+     * receivers list and using min int128 as balance delta
+     * @param targetAccId Account id of the sender
+     * @return Real balance delta
+     */
     function setStreamBalanceWithdrawAll(uint8 targetAccId)
         public
         returns (int128)
@@ -247,12 +346,23 @@ contract EchidnaStreamsHelpers is EchidnaBase {
         );
     }
 
+    /**
+     * @notice Helper function to update the values used as maxEnd hints
+     * @param _maxEndHint1 New value for maxEndHint1
+     * @param _maxEndHint2 New value for maxEndHint2
+     * @dev Can be toggled on/off with TOGGLE_MAXENDHINTS_ENABLED
+     */
     function setMaxEndHints(uint32 _maxEndHint1, uint32 _maxEndHint2) public {
         require(TOGGLE_MAXENDHINTS_ENABLED);
         maxEndHint1 = _maxEndHint1;
         maxEndHint2 = _maxEndHint2;
     }
 
+    /**
+     * @notice Clamp the amountPerSec between the minimum and maximum allowed values
+     * @param amountPerSec Amount per second to clamp
+     * @return Clamped amountPerSec
+     */
     function clampAmountPerSec(uint160 amountPerSec)
         internal
         returns (uint160)
@@ -262,9 +372,15 @@ contract EchidnaStreamsHelpers is EchidnaBase {
             (amountPerSec % (MAX_AMOUNT_PER_SEC - drips.minAmtPerSec() + 1));
     }
 
+    /**
+     * @notice Clamp the startTime between the minimum and maximum allowed values
+     * @param startTime Start time to clamp
+     * @return Clamped startTime
+     */
     function clampStartTime(uint32 startTime) internal returns (uint32) {
         if (startTime == 0) return 0;
 
+        // We want to make sure that the start time does not go below 1
         uint32 minStartTime;
         if (CYCLE_FUZZING_BUFFER_SECONDS >= block.timestamp) {
             minStartTime = 1;
@@ -273,17 +389,30 @@ contract EchidnaStreamsHelpers is EchidnaBase {
                 uint32(block.timestamp) -
                 CYCLE_FUZZING_BUFFER_SECONDS;
         }
+
         uint32 maxStartTime = uint32(block.timestamp) +
             CYCLE_FUZZING_BUFFER_SECONDS;
+
         return minStartTime + (startTime % (maxStartTime - minStartTime + 1));
     }
 
+    /**
+     * @notice Clamp the duration between the minimum and maximum allowed values
+     * @param duration Duration to clamp
+     * @return Clamped duration
+     */
     function clampDuration(uint32 duration) internal returns (uint32) {
         if (duration == 0) return 0;
 
         return duration % (MAX_STREAM_DURATION + 1);
     }
 
+    /**
+     * @notice Clamp the balanceDelta between the minimum and maximum allowed values
+     * @param balanceDelta Balance delta to clamp
+     * @param from Account performing the setStreams action
+     * @return Clamped balanceDelta
+     */
     function clampBalanceDelta(int128 balanceDelta, address from)
         internal
         returns (int128)
