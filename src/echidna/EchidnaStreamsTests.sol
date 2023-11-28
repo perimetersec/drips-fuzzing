@@ -5,7 +5,7 @@ import "./EchidnaStreamsHelpers.sol";
 
 /**
  * @title Mixin containing tests for streams
- * @author Rappie
+ * @author Rappie <rappie@perimetersec.io>
  */
 contract EchidnaStreamsTests is EchidnaBase, EchidnaStreamsHelpers {
     /**

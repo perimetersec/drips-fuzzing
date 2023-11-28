@@ -6,7 +6,7 @@ import {ManagedEchidna} from "./ManagedEchidna.sol";
 
 /**
  * @title Wrapper around AddressDriver with minor fuzzing helpers
- * @author Rappie
+ * @author Rappie <rappie@perimetersec.io>
  */
 contract AddressDriverEchidna is AddressDriver, ManagedEchidna {
     constructor(

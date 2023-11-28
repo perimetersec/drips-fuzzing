@@ -12,7 +12,7 @@ import "../tools/Debugger.sol";
 
 /**
  * @title Mixin containing the configuration for the fuzzing campaign
- * @author Rappie
+ * @author Rappie <rappie@perimetersec.io>
  */
 contract EchidnaConfig {
     // Addresses used for the simulated users

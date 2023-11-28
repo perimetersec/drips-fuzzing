@@ -4,7 +4,7 @@ import "./EchidnaStorage.sol";
 
 /**
  * @title Mixin for handling accounting related functions
- * @author Rappie
+ * @author Rappie <rappie@perimetersec.io>
  */
 contract EchidnaAccounting is EchidnaStorage {
     /**

@@ -6,7 +6,7 @@ import {ManagedEchidna} from "./ManagedEchidna.sol";
 
 /**
  * @title Wrapper around Drips with minor fuzzing helpers
- * @author Rappie
+ * @author Rappie <rappie@perimetersec.io>
  */
 contract DripsEchidna is Drips, ManagedEchidna {
     constructor(uint32 cycleSecs_) Drips(cycleSecs_) {}

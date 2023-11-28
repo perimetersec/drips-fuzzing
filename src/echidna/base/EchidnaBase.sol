@@ -6,7 +6,7 @@ import "./EchidnaAccounting.sol";
 
 /**
  * @title Mixin grouping together all base contracts
- * @author Rappie
+ * @author Rappie <rappie@perimetersec.io>
  */
 contract EchidnaBase is
     EchidnaSetup,

@@ -8,7 +8,7 @@ import "./EchidnaSqueezeTests.sol";
 
 /**
  * @title Echidna contract for testing the Drips contract
- * @author Rappie
+ * @author Rappie <rappie@perimetersec.io>
  * @dev Running the tests:
  * For Echidna use `echidna . --contract Echidna --config echidna-config.yaml`.
  * For Medusa use `medusa fuzz`.

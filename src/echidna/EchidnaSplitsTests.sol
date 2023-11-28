@@ -6,7 +6,7 @@ import "./EchidnaSplitsHelpers.sol";
 
 /**
  * @title Mixin containing tests for splitting
- * @author Rappie
+ * @author Rappie <rappie@perimetersec.io>
  */
 contract EchidnaSplitsTests is
     EchidnaBase,

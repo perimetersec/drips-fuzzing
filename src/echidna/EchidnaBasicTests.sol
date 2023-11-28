@@ -5,7 +5,7 @@ import "./EchidnaBasicHelpers.sol";
 
 /**
  * @title Mixin containing basic tests
- * @author Rappie
+ * @author Rappie <rappie@perimetersec.io>
  */
 contract EchidnaBasicTests is EchidnaBase, EchidnaBasicHelpers {
     /**

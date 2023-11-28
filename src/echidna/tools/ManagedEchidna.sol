@@ -3,7 +3,7 @@ import {Managed} from "src/Managed.sol";
 
 /**
  * @title Wrapper around Managed with minor fuzzing helpers
- * @author Rappie
+ * @author Rappie <rappie@perimetersec.io>
  */
 contract ManagedEchidna is Managed {
     constructor() Managed() {}

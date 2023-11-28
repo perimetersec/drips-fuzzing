@@ -4,7 +4,7 @@ import "./base/EchidnaBase.sol";
 
 /**
  * @title Mixin containing basic helper functions
- * @author Rappie
+ * @author Rappie <rappie@perimetersec.io>
  */
 contract EchidnaBasicHelpers is EchidnaBase {
     /**

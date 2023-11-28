@@ -3,7 +3,7 @@ import "./EchidnaSetup.sol";
 
 /**
  * @title Mixin for storing stream receivers and streams history
- * @author Rappie
+ * @author Rappie <rappie@perimetersec.io>
  */
 contract EchidnaStorage is EchidnaSetup {
     error DuplicateError();

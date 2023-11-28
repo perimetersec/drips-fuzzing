@@ -7,7 +7,7 @@ import "./EchidnaSqueezeHelpers.sol";
 
 /**
  * @title Mixin containing tests for squeezing
- * @author Rappie
+ * @author Rappie <rappie@perimetersec.io>
  */
 contract EchidnaSqueezeTests is
     EchidnaBasicHelpers,

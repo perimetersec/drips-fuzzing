@@ -7,7 +7,7 @@ import "./EchidnaSqueezeHelpers.sol";
 
 /**
  * @title Mixin containing invariant tests
- * @author Rappie
+ * @author Rappie <rappie@perimetersec.io>
  */
 contract EchidnaInvariantTests is
     EchidnaBasicHelpers,

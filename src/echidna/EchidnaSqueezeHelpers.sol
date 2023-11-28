@@ -5,7 +5,7 @@ import "./EchidnaBasicHelpers.sol";
 
 /**
  * @title Mixin containing helpers for squeezing
- * @author Rappie
+ * @author Rappie <rappie@perimetersec.io>
  */
 contract EchidnaSqueezeHelpers is EchidnaBase, EchidnaBasicHelpers {
     /**

@@ -4,7 +4,7 @@ import "./base/EchidnaBase.sol";
 
 /**
  * @title Mixin containing helpers for streams
- * @author Rappie
+ * @author Rappie <rappie@perimetersec.io>
  */
 contract EchidnaStreamsHelpers is EchidnaBase {
     // Internal variables to store maxEndHint1 and maxEndHint2. These are used

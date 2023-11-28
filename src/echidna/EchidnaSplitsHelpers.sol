@@ -4,7 +4,7 @@ import "./base/EchidnaBase.sol";
 
 /**
  * @title Mixin containing helpers for splitting
- * @author Rappie
+ * @author Rappie <rappie@perimetersec.io>
  */
 contract EchidnaSplitsHelpers is EchidnaBase {
     /**
