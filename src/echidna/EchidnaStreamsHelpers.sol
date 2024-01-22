@@ -422,7 +422,6 @@ contract EchidnaStreamsHelpers is EchidnaBase {
                 balanceDelta %
                 (int128(uint128(token.balanceOf(from))) + 1);
         } else {
-            // TODO: this should be modulo the balance inside Drips
             balanceDelta = balanceDelta % int128(uint128(STARTING_BALANCE));
         }
         return balanceDelta;
